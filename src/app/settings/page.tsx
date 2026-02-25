@@ -38,10 +38,26 @@ export default function SettingsPage() {
     }
 
     try {
+      let vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      console.log('Original VAPID Key from Env:', vapidPublicKey);
+      
+      if (!vapidPublicKey) {
+        throw new Error('VAPID Public Key not found in environment variables. Did you restart the server?');
+      }
+
+      // De-quote and trim
+      vapidPublicKey = vapidPublicKey.replace(/["']/g, '').trim().replace(/\s/g, '');
+      console.log('Cleaned VAPID Key:', vapidPublicKey);
+
       const registration = await navigator.serviceWorker.register('/sw.js');
+      await navigator.serviceWorker.ready;
+
+      const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
+      console.log('Converted Uint8Array Key:', convertedKey);
+
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
+        applicationServerKey: convertedKey,
       });
 
       await fetch('/api/notifications/subscribe', {
@@ -52,21 +68,32 @@ export default function SettingsPage() {
 
       setIsPushEnabled(true);
       setStatusMsg('✅ Notifications enabled!');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Push error:', err);
-      setStatusMsg('❌ Failed to enable notifications.');
+      if (err.name === 'InvalidAccessError') {
+        setStatusMsg('❌ Error: Invalid VAPID Public Key. Ensure it is a valid Base64URL string (usually 87 chars).');
+      } else {
+        setStatusMsg(`❌ Error: ${err.message || 'Failed to enable notifications.'}`);
+      }
     }
   }
 
   function urlBase64ToUint8Array(base64String: string) {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
     const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-    for (let i = 0; i < rawData.length; ++i) {
-      outputArray[i] = rawData.charCodeAt(i);
+    
+    try {
+      const rawData = window.atob(base64);
+      console.log('Decoded rawData length:', rawData.length);
+      const outputArray = new Uint8Array(rawData.length);
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
+    } catch (e) {
+      console.error('atob error:', e);
+      throw new Error('The VAPID public key is not a valid base64 string.');
     }
-    return outputArray;
   }
 
   return (
