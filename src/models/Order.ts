@@ -8,6 +8,7 @@ export interface IOrder extends Document {
   returnWindowDays: number;
   returnDeadline: Date;
   status: 'Pending' | 'Delivered' | 'Returned' | 'Kept';
+  gmailMessageId?: string;
   notes?: string;
   createdAt: Date;
 }
@@ -25,6 +26,7 @@ const OrderSchema = new Schema<IOrder>(
       enum: ['Pending', 'Delivered', 'Returned', 'Kept'],
       default: 'Pending',
     },
+    gmailMessageId: { type: String, unique: true, sparse: true },
     notes: { type: String },
   },
   { timestamps: true }

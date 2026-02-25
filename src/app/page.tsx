@@ -22,7 +22,16 @@ interface Subscription {
   status: string;
 }
 
-function getDaysLeft(dateStr: string): number {
+interface Stats {
+  totalOrders: number;
+  activeReturns: number;
+  subscriptionsCount: number;
+  monthlySpend: number;
+  urgentCount: number;
+}
+
+function getDaysLeft(dateStr: string | undefined): number {
+  if (!dateStr) return 0;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const target = new Date(dateStr);
@@ -69,38 +78,73 @@ function getEmoji(name: string, map: Record<string, string>): string {
 }
 
 export default function DashboardPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [stats, setStats] = useState<Stats>({
+    totalOrders: 0,
+    activeReturns: 0,
+    subscriptionsCount: 0,
+    monthlySpend: 0,
+    urgentCount: 0
+  });
+  const [upcomingReturns, setUpcomingReturns] = useState<Order[]>([]);
+  const [upcomingSubscriptions, setUpcomingSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
-    Promise.all([
-      fetch('/api/orders').then(r => r.json()),
-      fetch('/api/subscriptions').then(r => r.json()),
-    ]).then(([o, s]) => {
-      setOrders(Array.isArray(o) ? o : []);
-      setSubscriptions(Array.isArray(s) ? s : []);
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    fetchStats();
   }, []);
 
-  const activeOrders = orders.filter(o => o.status === 'Delivered' && o.returnDeadline);
-  const activeSubscriptions = subscriptions.filter(s => s.status === 'Active');
-  const monthlyTotal = activeSubscriptions.reduce((sum, s) => {
-    const cost = s.billingCycle === 'Yearly' ? s.cost / 12 : s.billingCycle === 'Weekly' ? s.cost * 4 : s.cost;
-    return sum + cost;
-  }, 0);
+  const fetchStats = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/dashboard/stats');
+      const data = await res.json();
+      if (data.stats) {
+        setStats(data.stats);
+        setUpcomingReturns(data.upcomingReturns || []);
+        setUpcomingSubscriptions(data.upcomingSubscriptions || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch dashboard stats:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const urgentOrders = activeOrders.filter(o => o.returnDeadline && getDaysLeft(o.returnDeadline) <= 3).length;
-  const urgentSubs = activeSubscriptions.filter(s => getDaysLeft(s.nextRenewalDate) <= 3).length;
+  const syncGmail = async () => {
+    setIsSyncing(true);
+    try {
+      const res = await fetch('/api/sync/gmail', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Successfully synced! Found ${data.count} new orders.`);
+        fetchStats();
+      } else {
+        alert('Sync failed: ' + (data.error || 'Check your Gmail connection in Settings'));
+      }
+    } catch (err) {
+      alert('Error connecting to sync service');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   return (
     <div className="app-shell">
       <Sidebar />
       <main className="main-content">
         <div className="page-header">
-          <h1 className="page-title">Dashboard</h1>
-          <p className="page-subtitle">Your upcoming deadlines and renewals at a glance</p>
+          <div>
+            <h1 className="page-title">Morning, Tracker! 👋</h1>
+            <p className="page-subtitle">You have {stats.urgentCount} items closing or renewing soon.</p>
+          </div>
+          <button 
+            className={`btn ${isSyncing ? 'btn-ghost' : 'btn-primary'}`} 
+            onClick={syncGmail}
+            disabled={isSyncing}
+          >
+            {isSyncing ? '⌛ Syncing Gmail...' : '🔄 Sync Gmail'}
+          </button>
         </div>
 
         {/* Stats */}
@@ -108,40 +152,31 @@ export default function DashboardPage() {
           <div className="stat-card">
             <div className="stat-icon purple">📦</div>
             <div>
-              <div className="stat-value">{orders.length}</div>
+              <div className="stat-value">{stats.totalOrders}</div>
               <div className="stat-label">Total Orders</div>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon yellow">⏳</div>
             <div>
-              <div className="stat-value">{activeOrders.length}</div>
+              <div className="stat-value">{stats.activeReturns}</div>
               <div className="stat-label">Active Returns</div>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon green">🔄</div>
             <div>
-              <div className="stat-value">{activeSubscriptions.length}</div>
+              <div className="stat-value">{stats.subscriptionsCount}</div>
               <div className="stat-label">Subscriptions</div>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon blue">💰</div>
             <div>
-              <div className="stat-value">₹{Math.round(monthlyTotal)}</div>
+              <div className="stat-value">₹{Math.round(stats.monthlySpend)}</div>
               <div className="stat-label">Monthly Spend</div>
             </div>
           </div>
-          {(urgentOrders + urgentSubs) > 0 && (
-            <div className="stat-card" style={{ borderColor: 'rgba(239,68,68,0.3)' }}>
-              <div className="stat-icon red">🚨</div>
-              <div>
-                <div className="stat-value">{urgentOrders + urgentSubs}</div>
-                <div className="stat-label">Urgent (≤3 days)</div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Two column layout */}
@@ -155,15 +190,15 @@ export default function DashboardPage() {
             </div>
             {loading ? (
               <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Loading...</p>
-            ) : activeOrders.length === 0 ? (
+            ) : upcomingReturns.length === 0 ? (
               <div className="empty-state" style={{ padding: '30px 0' }}>
                 <div className="empty-state-icon">📭</div>
                 <div className="empty-state-text">No active return windows</div>
               </div>
             ) : (
               <div className="item-list">
-                {activeOrders.slice(0, 5).map(order => {
-                  const days = getDaysLeft(order.returnDeadline!);
+                {upcomingReturns.map(order => {
+                  const days = getDaysLeft(order.returnDeadline);
                   return (
                     <div className="item-card" key={order._id}>
                       <div className="item-logo">{getEmoji(order.marketplace, marketplaceEmojis)}</div>
@@ -172,7 +207,7 @@ export default function DashboardPage() {
                         <div className="item-meta">{order.marketplace}</div>
                       </div>
                       <div className="item-right">
-                        <div className="item-date">{formatDate(order.returnDeadline!)}</div>
+                        <div className="item-date">{order.returnDeadline ? formatDate(order.returnDeadline) : 'N/A'}</div>
                         <span className={`item-days ${getDaysClass(days)}`}>{getDaysLabel(days)}</span>
                       </div>
                     </div>
@@ -190,14 +225,14 @@ export default function DashboardPage() {
             </div>
             {loading ? (
               <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Loading...</p>
-            ) : activeSubscriptions.length === 0 ? (
+            ) : upcomingSubscriptions.length === 0 ? (
               <div className="empty-state" style={{ padding: '30px 0' }}>
                 <div className="empty-state-icon">📭</div>
                 <div className="empty-state-text">No active subscriptions</div>
               </div>
             ) : (
               <div className="item-list">
-                {activeSubscriptions.slice(0, 5).map(sub => {
+                {upcomingSubscriptions.map(sub => {
                   const days = getDaysLeft(sub.nextRenewalDate);
                   return (
                     <div className="item-card" key={sub._id}>

@@ -5,6 +5,7 @@ const navItems = [
   { icon: '📊', label: 'Dashboard', path: '/' },
   { icon: '📦', label: 'Orders', path: '/orders' },
   { icon: '🔄', label: 'Subscriptions', path: '/subscriptions' },
+  { icon: '⚙️', label: 'Settings', path: '/settings' },
 ];
 
 export default function Sidebar() {
