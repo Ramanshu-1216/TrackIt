@@ -9,27 +9,19 @@ export default function SettingsPage() {
   const [statusMsg, setStatusMsg] = useState('');
 
   useEffect(() => {
-    // Check current settings from API (we need to create a user settings GET route)
     fetch('/api/user/settings')
       .then(r => r.json())
       .then(data => {
         setIsPushEnabled(!!data.pushSubscription);
-        setGoogleConnected(!!data.googleTokens);
+        // If they are on this page, they are already signed in with Google
+        setGoogleConnected(true);
         setLoading(false);
       })
       .catch(() => setLoading(false));
 
-    // Check URL params for status updates
     const params = new URLSearchParams(window.location.search);
     if (params.get('connected')) setStatusMsg('✅ Google Account connected!');
-    if (params.get('error')) setStatusMsg('❌ Failed to connect Google Account.');
   }, []);
-
-  async function connectGoogle() {
-    const res = await fetch('/api/auth/google');
-    const { url } = await res.json();
-    window.location.href = url;
-  }
 
   async function enableNotifications() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
@@ -121,11 +113,9 @@ export default function SettingsPage() {
               Connect your Google account to automatically scan for order confirmation emails from Amazon, Flipkart, and more.
             </p>
             {googleConnected ? (
-              <div className="badge badge-success">Connected to Google</div>
+              <div className="badge badge-success">Connected via Google Account</div>
             ) : (
-              <button className="btn btn-primary" onClick={connectGoogle} disabled={loading}>
-                Connect Google Account
-              </button>
+              <p style={{ color: '#ef4444' }}>Please sign in with Google to enable automation.</p>
             )}
           </div>
 

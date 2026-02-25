@@ -1,5 +1,6 @@
 'use client';
 import { usePathname, useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 
 const navItems = [
   { icon: '📊', label: 'Dashboard', path: '/' },
@@ -11,6 +12,7 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { data: session } = useSession();
 
   return (
     <aside className="sidebar">
@@ -35,6 +37,33 @@ export default function Sidebar() {
           </button>
         ))}
       </nav>
+
+      {session?.user && (
+        <div className="nav-section" style={{ marginTop: 'auto', borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
+          <div className="nav-label">Account</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 12px', marginBottom: '12px' }}>
+             {session.user.image ? (
+               <img src={session.user.image} alt={session.user.name || ''} style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+             ) : (
+               <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>
+                 {(session.user.name || 'U').charAt(0)}
+               </div>
+             )}
+             <div style={{ overflow: 'hidden' }}>
+               <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{session.user.name}</div>
+               <div style={{ fontSize: '11px', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{session.user.email}</div>
+             </div>
+          </div>
+          <button 
+            className="nav-link" 
+            style={{ color: '#ef4444' }}
+            onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+          >
+            <span className="nav-icon">🚪</span>
+            Logout
+          </button>
+        </div>
+      )}
     </aside>
   );
 }

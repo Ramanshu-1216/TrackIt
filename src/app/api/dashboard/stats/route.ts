@@ -1,14 +1,20 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 import dbConnect from '@/lib/dbConnect';
 import Order from '@/models/Order';
 import Subscription from '@/models/Subscription';
+import { authOptions } from '../../auth/[...nextauth]/route';
 
 export async function GET() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   await dbConnect();
 
   try {
-    const orders = await Order.find({});
-    const subscriptions = await Subscription.find({});
+    const userId = session.user.id;
+    const orders = await Order.find({ userId });
+    const subscriptions = await Subscription.find({ userId });
 
     const activeOrders = orders.filter(
       (o) => o.status === 'Delivered' && o.returnDeadline

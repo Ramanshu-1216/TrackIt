@@ -10,11 +10,14 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY!
 );
 
-export async function sendPushNotification(payload: { title: string; body: string; url?: string }) {
+export async function sendPushNotification(
+  userId: string, 
+  payload: { title: string; body: string; url?: string }
+) {
   await dbConnect();
-  const user = await User.findOne({});
+  const user = await User.findById(userId);
   if (!user || !user.pushSubscription) {
-    console.log('No user or push subscription found');
+    console.log(`No user or push subscription found for userId: ${userId}`);
     return;
   }
 
@@ -23,9 +26,9 @@ export async function sendPushNotification(payload: { title: string; body: strin
       user.pushSubscription as any,
       JSON.stringify(payload)
     );
-    console.log('Push notification sent successfully');
+    console.log(`Push notification sent successfully to user: ${userId}`);
   } catch (error: any) {
-    console.error('Error sending push notification:', error);
+    console.error(`Error sending push notification to ${userId}:`, error);
     if (error.statusCode === 410) {
       // Subscription expired/invalid
       user.pushSubscription = undefined;
@@ -49,13 +52,17 @@ export async function checkAndSendReminders() {
     }
   });
 
+  let sentCount = 0;
   for (const order of upcomingOrders) {
-    await sendPushNotification({
-      title: 'Return Window Closing Soon! ⚠️',
-      body: `Last chance to return "${order.itemName}". Deadline: ${order.returnDeadline?.toLocaleDateString()}`,
-      url: `/orders`,
-    });
+    if (order.userId) {
+      await sendPushNotification(order.userId.toString(), {
+        title: 'Return Window Closing Soon! ⚠️',
+        body: `Last chance to return "${order.itemName}". Deadline: ${order.returnDeadline?.toLocaleDateString()}`,
+        url: `/orders`,
+      });
+      sentCount++;
+    }
   }
 
-  return upcomingOrders.length;
+  return sentCount;
 }

@@ -1,6 +1,9 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
 export interface IUser extends Document {
+  name?: string;
+  email?: string;
+  image?: string;
   googleTokens?: {
     accessToken: string;
     refreshToken: string;
@@ -22,6 +25,9 @@ export interface IUser extends Document {
 
 const UserSchema = new Schema<IUser>(
   {
+    name: String,
+    email: { type: String, unique: true, sparse: true },
+    image: String,
     googleTokens: {
       accessToken: String,
       refreshToken: String,
