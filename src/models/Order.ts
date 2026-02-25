@@ -1,0 +1,45 @@
+import mongoose, { Schema, Document, Model } from 'mongoose';
+
+export interface IOrder extends Document {
+  itemName: string;
+  marketplace: string;
+  purchaseDate: Date;
+  deliveryDate: Date;
+  returnWindowDays: number;
+  returnDeadline: Date;
+  status: 'Pending' | 'Delivered' | 'Returned' | 'Kept';
+  notes?: string;
+  createdAt: Date;
+}
+
+const OrderSchema = new Schema<IOrder>(
+  {
+    itemName: { type: String, required: true },
+    marketplace: { type: String, required: true },
+    purchaseDate: { type: Date, required: true },
+    deliveryDate: { type: Date, required: false },
+    returnWindowDays: { type: Number, required: true, default: 7 },
+    returnDeadline: { type: Date },
+    status: {
+      type: String,
+      enum: ['Pending', 'Delivered', 'Returned', 'Kept'],
+      default: 'Pending',
+    },
+    notes: { type: String },
+  },
+  { timestamps: true }
+);
+
+// Auto-compute returnDeadline before saving
+OrderSchema.pre('save', async function () {
+  if (this.deliveryDate && this.returnWindowDays) {
+    const deadline = new Date(this.deliveryDate);
+    deadline.setDate(deadline.getDate() + this.returnWindowDays);
+    this.returnDeadline = deadline;
+  }
+});
+
+const Order: Model<IOrder> =
+  mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema);
+
+export default Order;
