@@ -1,5 +1,5 @@
-'use client';
 import { useState, useEffect } from 'react';
+import { signIn } from 'next-auth/react';
 import Sidebar from '@/components/Sidebar';
 import MobileNav from '@/components/MobileNav';
 
@@ -8,6 +8,7 @@ import MobileNav from '@/components/MobileNav';
 export default function SettingsPage() {
   const [isPushEnabled, setIsPushEnabled] = useState(false);
   const [googleConnected, setGoogleConnected] = useState(false);
+  const [hasGmailScope, setHasGmailScope] = useState(false);
   const [loading, setLoading] = useState(true);
   const [statusMsg, setStatusMsg] = useState('');
 
@@ -16,8 +17,8 @@ export default function SettingsPage() {
       .then(r => r.json())
       .then(data => {
         setIsPushEnabled(!!data.pushSubscription);
-        // If they are on this page, they are already signed in with Google
         setGoogleConnected(true);
+        setHasGmailScope(!!data.hasGmailScope);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -106,6 +107,26 @@ export default function SettingsPage() {
           </div>
         )}
 
+        {!hasGmailScope && googleConnected && !loading && (
+          <div className="detect-banner" style={{ 
+            marginBottom: '24px', 
+            background: 'var(--danger-bg)', 
+            borderColor: 'var(--danger)',
+            color: 'var(--danger)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <span>⚠️ Gmail permissions are missing. Automation will not work.</span>
+            <button 
+              className="btn btn-sm btn-danger"
+              onClick={() => signIn('google', { callbackUrl: '/settings?connected=true' })}
+            >
+              Grant Permissions
+            </button>
+          </div>
+        )}
+
         <div style={{ display: 'grid', gap: '24px', maxWidth: '600px' }}>
           {/* Gmail Automation */}
           <div className="card">
@@ -116,9 +137,26 @@ export default function SettingsPage() {
               Connect your Google account to automatically scan for order confirmation emails from Amazon, Flipkart, and more.
             </p>
             {googleConnected ? (
-              <div className="badge badge-success">Connected via Google Account</div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div className="badge badge-success">Google Connected</div>
+                {hasGmailScope ? (
+                  <div className="badge badge-success">Gmail Permission Active</div>
+                ) : (
+                  <div className="badge badge-danger" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>Permissions Missing</div>
+                )}
+              </div>
             ) : (
               <p style={{ color: '#ef4444' }}>Please sign in with Google to enable automation.</p>
+            )}
+            
+            {!hasGmailScope && googleConnected && (
+              <button 
+                className="btn btn-primary" 
+                style={{ marginTop: '16px' }}
+                onClick={() => signIn('google', { callbackUrl: '/settings?connected=true' })}
+              >
+                Reconnect to Grant Permissions
+              </button>
             )}
           </div>
 

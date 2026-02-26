@@ -8,10 +8,12 @@ declare module "next-auth" {
     user: {
       /** The user's postal address. */
       id: string
+      hasGmailScope?: boolean
     } & DefaultSession["user"]
   }
 
   interface User {
     id: string
+    hasGmailScope?: boolean
   }
 }

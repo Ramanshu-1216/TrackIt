@@ -1,6 +1,5 @@
-'use client';
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import Sidebar from '@/components/Sidebar';
 import MobileNav from '@/components/MobileNav';
 
@@ -117,6 +116,13 @@ export default function DashboardPage() {
   };
 
   const syncGmail = async () => {
+    if (!session?.user?.hasGmailScope) {
+      if (confirm('Gmail permissions are missing. Would you like to grant them now to enable syncing?')) {
+        signIn('google', { callbackUrl: '/?sync=true' });
+      }
+      return;
+    }
+
     setIsSyncing(true);
     try {
       const res = await fetch('/api/sync/gmail', { method: 'POST' });

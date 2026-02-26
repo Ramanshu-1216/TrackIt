@@ -10,11 +10,24 @@ export async function GET() {
 
   await dbConnect();
   const user = await User.findById(session.user.id);
+  
+  // Check for gmail scope in accounts collection
+  const mongoose = (await import('mongoose')).default;
+  const account = await mongoose.connection.db?.collection('accounts').findOne({ 
+    userId: new mongoose.Types.ObjectId(session.user.id),
+    provider: 'google'
+  });
+
+  const hasGmailScope = account?.scope?.includes('https://www.googleapis.com/auth/gmail.readonly');
+
   if (!user) {
     return NextResponse.json({
       googleTokens: null,
-      pushSubscription: null
+      pushSubscription: null,
+      hasGmailScope
     });
   }
-  return NextResponse.json(user);
+  
+  const userData = user.toObject();
+  return NextResponse.json({ ...userData, hasGmailScope });
 }

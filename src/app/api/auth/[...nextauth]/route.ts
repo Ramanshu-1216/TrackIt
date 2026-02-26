@@ -22,12 +22,16 @@ export const authOptions: AuthOptions = {
     async session({ session, user, token }: any) {
       if (session.user) {
         session.user.id = user?.id || token?.sub;
+        session.user.hasGmailScope = !!token?.hasGmailScope;
       }
       return session;
     },
-    async jwt({ token, user }: any) {
+    async jwt({ token, user, account }: any) {
       if (user) {
         token.id = user.id;
+      }
+      if (account) {
+        token.hasGmailScope = account.scope?.includes('https://www.googleapis.com/auth/gmail.readonly');
       }
       return token;
     },
