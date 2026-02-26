@@ -15,7 +15,8 @@ export async function scanForOrders(userId: string) {
   });
 
   if (!account || !account.access_token) {
-    throw new Error('No Google account connected for this user');
+    console.warn(`[GmailSync] No Google account connected or missing token for userId: ${userId}`);
+    return [];
   }
 
   oauth2Client.setCredentials({
