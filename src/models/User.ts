@@ -20,6 +20,7 @@ export interface IUser extends Document {
     enablePush: boolean;
     reminderDaysBefore: number;
   };
+  lastGmailSync?: Date;
   createdAt: Date;
 }
 
@@ -44,6 +45,7 @@ const UserSchema = new Schema<IUser>(
       enablePush: { type: Boolean, default: true },
       reminderDaysBefore: { type: Number, default: 1 },
     },
+    lastGmailSync: Date,
   },
   { timestamps: true }
 );

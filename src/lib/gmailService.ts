@@ -42,11 +42,25 @@ export async function scanForOrders(userId: string) {
     }
   });
 
-  const query = 'subject:("order confirmation" OR "order placed" OR "delivered")';
+  // 1. Fetch user to get last sync time
+  const user = await User.findById(userId);
+  let query = 'subject:("order confirmation" OR "order placed" OR "delivered")';
+  
+  if (user?.lastGmailSync) {
+    // Gmail supports after:<unix_timestamp>
+    const unixSeconds = Math.floor(new Date(user.lastGmailSync).getTime() / 1000);
+    query += ` after:${unixSeconds}`;
+  } else {
+    // Default to last 30 days for new users
+    query += ' newer_than:30d';
+  }
+
+  console.log(`[GmailSync] Query for user ${userId}: ${query}`);
+
   const res = await gmail.users.messages.list({
     userId: 'me',
     q: query,
-    maxResults: 10,
+    maxResults: 20,
   });
 
   const messages = res.data.messages || [];
@@ -78,6 +92,9 @@ export async function scanForOrders(userId: string) {
       results.push(newOrder);
     }
   }
+
+  // 3. Update last sync timestamp
+  await User.findByIdAndUpdate(userId, { lastGmailSync: new Date() });
 
   return results;
 }
