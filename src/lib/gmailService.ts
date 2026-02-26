@@ -4,6 +4,7 @@ import Order from '@/models/Order';
 import User from '@/models/User';
 import dbConnect from './dbConnect';
 import mongoose from 'mongoose';
+import { sendPushNotification } from './notificationService';
 
 export async function scanForOrders(userId: string) {
   await dbConnect();
@@ -95,6 +96,18 @@ export async function scanForOrders(userId: string) {
 
   // 3. Update last sync timestamp
   await User.findByIdAndUpdate(userId, { lastGmailSync: new Date() });
+
+  // 4. Trigger notification if new orders found
+  if (results.length > 0) {
+    const itemNames = results.slice(0, 2).map(o => o.itemName).join(', ');
+    const moreCount = results.length > 2 ? ` and ${results.length - 2} more` : '';
+    
+    await sendPushNotification(userId, {
+      title: 'New Orders Synced! 📦',
+      body: `Found ${results.length} new orders from Gmail: ${itemNames}${moreCount}.`,
+      url: '/',
+    });
+  }
 
   return results;
 }
