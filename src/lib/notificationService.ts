@@ -1,6 +1,7 @@
 import webpush from 'web-push';
 import User from '@/models/User';
 import Order from '@/models/Order';
+import Subscription from '@/models/Subscription';
 import dbConnect from './dbConnect';
 
 // Configure VAPID keys
@@ -43,7 +44,7 @@ export async function checkAndSendReminders() {
   const tomorrow = new Date();
   tomorrow.setDate(today.getDate() + 1);
 
-  // Find orders where return deadline is today or tomorrow
+  // 1. Find orders where return deadline is today or tomorrow
   const upcomingOrders = await Order.find({
     status: 'Delivered',
     returnDeadline: {
@@ -52,13 +53,36 @@ export async function checkAndSendReminders() {
     }
   });
 
+  // 2. Find active subscriptions with upcoming renewal dates (today or tomorrow)
+  const upcomingSubs = await Subscription.find({
+    status: 'Active',
+    nextRenewalDate: {
+      $gte: today,
+      $lte: tomorrow
+    }
+  });
+
   let sentCount = 0;
+  
+  // Process Orders
   for (const order of upcomingOrders) {
     if (order.userId) {
       await sendPushNotification(order.userId.toString(), {
         title: 'Return Window Closing Soon! ⚠️',
         body: `Last chance to return "${order.itemName}". Deadline: ${order.returnDeadline?.toLocaleDateString()}`,
         url: `/orders`,
+      });
+      sentCount++;
+    }
+  }
+
+  // Process Subscriptions
+  for (const sub of upcomingSubs) {
+    if (sub.userId) {
+      await sendPushNotification(sub.userId.toString(), {
+        title: 'Subscription Renewal Alert! 🔄',
+        body: `"${sub.serviceName}" is renewing on ${sub.nextRenewalDate.toLocaleDateString()}. Amount: ${sub.currency} ${sub.cost}`,
+        url: `/subscriptions`,
       });
       sentCount++;
     }

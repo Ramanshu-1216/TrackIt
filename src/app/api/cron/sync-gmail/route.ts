@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import dbConnect from '@/lib/dbConnect';
 import { scanForOrders } from '@/lib/gmailService';
+import { checkAndSendReminders } from '@/lib/notificationService';
 
 export async function POST(request: Request) {
   try {
@@ -31,19 +32,31 @@ export async function POST(request: Request) {
       const userId = account.userId.toString();
       try {
         console.log(`[CRON] Starting sync for user: ${userId}`);
-        const newOrders = await scanForOrders(userId);
-        totalSynced += newOrders.length;
-        results.push({ userId, newOrders: newOrders.length, status: 'success' });
+        const syncResult = await scanForOrders(userId);
+        const orderCount = syncResult.orders.length;
+        const subCount = syncResult.subscriptions.length;
+        
+        totalSynced += (orderCount + subCount);
+        results.push({ 
+          userId, 
+          newOrders: orderCount, 
+          newSubscriptions: subCount, 
+          status: 'success' 
+        });
       } catch (error: any) {
         console.error(`[CRON] Failed to sync for user: ${userId}`, error);
         results.push({ userId, error: error.message, status: 'failed' });
       }
     }
 
+    // 3. Trigger reminders for all users (deadlines, renewals)
+    const reminderCount = await checkAndSendReminders();
+
     return NextResponse.json({ 
       success: true, 
       totalUsersProcessed: accounts.length,
       totalOrdersFound: totalSynced,
+      remindersSent: reminderCount,
       details: results 
     });
     
