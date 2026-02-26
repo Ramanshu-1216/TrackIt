@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import Sidebar from '@/components/Sidebar';
 import MobileNav from '@/components/MobileNav';
 
@@ -81,6 +82,7 @@ function getEmoji(name: string, map: Record<string, string>): string {
 }
 
 export default function DashboardPage() {
+  const { data: session } = useSession();
   const [stats, setStats] = useState<Stats>({
     totalOrders: 0,
     activeReturns: 0,
@@ -120,7 +122,7 @@ export default function DashboardPage() {
       const res = await fetch('/api/sync/gmail', { method: 'POST' });
       const data = await res.json();
       if (data.success) {
-        alert(`Successfully synced! Found ${data.count} new orders.`);
+        alert(`Successfully synced! Found ${data.ordersCount} new orders and ${data.subscriptionsCount} new subscriptions.`);
         fetchStats();
       } else {
         alert('Sync failed: ' + (data.error || 'Check your Gmail connection in Settings'));
@@ -132,13 +134,22 @@ export default function DashboardPage() {
     }
   };
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
+  const userName = session?.user?.name?.split(' ')[0] || 'Tracker';
+
   return (
     <div className="app-shell">
       <Sidebar />
       <main className="main-content">
         <div className="page-header">
           <div>
-            <h1 className="page-title">Morning, Tracker! 👋</h1>
+            <h1 className="page-title">{getGreeting()}, {userName}! 👋</h1>
             <p className="page-subtitle">You have {stats.urgentCount} items closing or renewing soon.</p>
           </div>
           <button 
