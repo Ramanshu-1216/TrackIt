@@ -8,11 +8,13 @@ export async function POST() {
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const newOrders = await scanForOrders(session.user.id);
+    const syncResult = await scanForOrders(session.user.id);
     return NextResponse.json({ 
       success: true, 
-      count: newOrders.length,
-      orders: newOrders 
+      ordersCount: syncResult.orders.length,
+      subscriptionsCount: syncResult.subscriptions.length,
+      orders: syncResult.orders,
+      subscriptions: syncResult.subscriptions
     });
   } catch (error: any) {
     console.error('Sync Error:', error);
