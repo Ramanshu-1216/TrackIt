@@ -1,6 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
+import MobileNav from '@/components/MobileNav';
+
+// ... (keep interface & helper functions the same - targeting the import and the return)
 
 interface Order {
   _id: string;
@@ -288,6 +291,7 @@ export default function OrdersPage() {
           </div>
         )}
       </main>
+      <MobileNav />
     </div>
   );
 }

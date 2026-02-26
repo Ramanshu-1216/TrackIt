@@ -1,6 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
+import MobileNav from '@/components/MobileNav';
+
+// ... (keep interface & helper functions the same - targeting the import and the return)
 
 interface Subscription {
   _id: string;
@@ -331,6 +334,7 @@ export default function SubscriptionsPage() {
           </div>
         )}
       </main>
+      <MobileNav />
     </div>
   );
 }

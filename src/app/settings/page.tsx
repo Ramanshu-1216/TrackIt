@@ -1,6 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
+import MobileNav from '@/components/MobileNav';
+
+// ... (keep interface & helper functions the same - targeting the import and the return)
 
 export default function SettingsPage() {
   const [isPushEnabled, setIsPushEnabled] = useState(false);
@@ -137,6 +140,7 @@ export default function SettingsPage() {
           </div>
         </div>
       </main>
+      <MobileNav />
     </div>
   );
 }
