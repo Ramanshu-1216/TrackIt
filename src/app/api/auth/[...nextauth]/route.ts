@@ -13,6 +13,7 @@ export const authOptions: AuthOptions = {
           scope: 'openid email profile https://www.googleapis.com/auth/gmail.readonly',
           access_type: 'offline',
           prompt: 'consent',
+          include_granted_scopes: true,
         },
       },
     }),
