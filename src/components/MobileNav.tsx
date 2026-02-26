@@ -1,5 +1,6 @@
 'use client';
 import { usePathname, useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 
 const navItems = [
   { icon: '📊', label: 'Dashboard', path: '/' },
@@ -27,6 +28,14 @@ export default function MobileNav() {
           </button>
         );
       })}
+      <button
+        className="mobile-nav-item"
+        style={{ color: '#ef4444' }}
+        onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+      >
+        <span className="mobile-nav-icon">🚪</span>
+        <span className="mobile-nav-label">Logout</span>
+      </button>
     </nav>
   );
 }
