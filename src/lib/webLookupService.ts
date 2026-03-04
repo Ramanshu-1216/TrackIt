@@ -27,7 +27,7 @@ const MARKETPLACE_CONFIGS: Record<string, MarketplaceConfig> = {
   Myntra: {
     searchUrlBuilder: (name) =>
       `https://www.myntra.com/${encodeURIComponent(name.toLowerCase().replace(/\s+/g, '-'))}`,
-    productUrlPattern: /https?:\/\/(?:www\.)?myntra\.com\/[^\s"'<>]+\/\d+\/buy/gi,
+    productUrlPattern: /https?:\/\/(?:www\.)?myntra\.com\/[^\s"'<>]+\/\d+(?:\/buy)?/gi,
     defaultReturnDays: 7,
   },
   Meesho: {
