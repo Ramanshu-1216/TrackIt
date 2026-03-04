@@ -26,7 +26,10 @@ function buildGmailQuery(lastSync?: Date): string {
   let query = `from:(${fromClause})`;
 
   if (lastSync) {
-    const unixSeconds = Math.floor(new Date(lastSync).getTime() / 1000);
+    const syncDate = new Date(lastSync);
+    // Subtract 12 hours (43200 seconds) to handle timezone shifts/skew reliably
+    const unixSeconds = Math.floor(syncDate.getTime() / 1000) - 43200;
+    console.log(`[GmailSync] lastSync: ${syncDate.toISOString()}, Unix (with 12h buffer): ${unixSeconds}`);
     query += ` after:${unixSeconds}`;
   } else {
     query += ' newer_than:30d';
@@ -237,6 +240,13 @@ export async function scanForOrders(userId: string) {
       if (!body) {
         console.log(`[GmailSync] Empty body for message ${msg.id}, skipping`);
         continue;
+      }
+
+      // ─── Rate Limiting for Free Tier ───────────────────────────────────────
+      // Wait 5 seconds between each message to avoid hitting Gemini 15 RPM limit
+      if (newOrders.length > 0 || newSubs.length > 0) {
+        console.log('[GmailSync] Rate-limiting pause (5s)...');
+        await new Promise(resolve => setTimeout(resolve, 5000));
       }
 
       // Extract URLs from email body

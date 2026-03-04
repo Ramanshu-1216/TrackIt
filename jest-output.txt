@@ -6,15 +6,14 @@ node.exe : PASS src/__tests__/webLookupService.test.ts
 At C:\Users\raman\AppData\Roaming\npm\npm.ps1:24 char:5
 +     & "node$exe"  "$basedir/node_modules/npm/bin/npm-cli.js" $args
 +     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (PASS 
-src/__test...Service.test.t    s:String) [], RemoteException
+    + CategoryInfo          : NotSpecified: (PASS src/__test...Service.test    
+.ts:String) [], RemoteException
     + FullyQualifiedErrorId : NativeCommandError
  
   ΓùÅ Console
 
     console.log
-      [WebLookup] Looking up return policy for "Samsung Galaxy M34 5G" on 
-Amazon
+      [WebLookup] Looking up return policy for "Samsung Galaxy M34 5G" on Amazon
 
       at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
 
@@ -31,8 +30,7 @@ https://www.amazon.in/dp/B0CTML42S2
       at lookupReturnPolicy (src/lib/webLookupService.ts:71:17)
 
     console.log
-      [WebLookup] Looking up return policy for "Nike Air Max 270" on 
-Flipkart
+      [WebLookup] Looking up return policy for "Nike Air Max 270" on Flipkart
 
       at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
 
@@ -49,8 +47,8 @@ https://www.flipkart.com/nike-air-max-270-running-shoes/p/itm2b9e8c7cf2b45
       at lookupReturnPolicy (src/lib/webLookupService.ts:71:17)
 
     console.log
-      [WebLookup] Looking up return policy for "H&M Slim Fit Formal Shirt" 
-on Myntra
+      [WebLookup] Looking up return policy for "H&M Slim Fit Formal Shirt" on 
+Myntra
 
       at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
 
@@ -84,8 +82,7 @@ https://meesho.com/customized-kurti/p/12345
       at lookupReturnPolicy (src/lib/webLookupService.ts:71:17)
 
     console.log
-      [WebLookup] Looking up return policy for "Roadster Slim Fit Jeans" on 
-Ajio
+      [WebLookup] Looking up return policy for "Roadster Slim Fit Jeans" on Ajio
 
       at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
 
@@ -119,8 +116,7 @@ https://www.ajio.com/roadster-slim-fit-jeans/p/465423095_darkblue
       at lookupReturnPolicy (src/lib/webLookupService.ts:93:19)
 
     console.log
-      [WebLookup] Looking up return policy for "Printed Cotton Kurti" on 
-Meesho
+      [WebLookup] Looking up return policy for "Printed Cotton Kurti" on Meesho
 
       at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
 
@@ -174,8 +170,7 @@ https://www.flipkart.com/search?q=Unknown%20Product
       at lookupReturnPolicy (src/lib/webLookupService.ts:103:11)
 
     console.log
-      [WebLookup] Looking up return policy for "Some Amazon Product" on 
-Amazon
+      [WebLookup] Looking up return policy for "Some Amazon Product" on Amazon
 
       at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
 
@@ -194,8 +189,8 @@ https://www.amazon.in/s?k=Some%20Amazon%20Product
       [WebLookup] Jina fetch failed for 
 https://www.amazon.in/s?k=Some%20Amazon%20Product: Network error
 
-    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] 
-Jina timeout for ${url}`[39m)[33m;[39m
+    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] Jina 
+timeout for ${url}`[39m)[33m;[39m
      [90m 172 |[39m     } [36melse[39m {
     [31m[1m>[22m[39m[90m 173 |[39m       
 console[33m.[39merror([32m`[WebLookup] Jina fetch failed for 
@@ -220,8 +215,7 @@ ${url}:`[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
       at lookupReturnPolicy (src/lib/webLookupService.ts:103:11)
 
     console.log
-      [WebLookup] Looking up return policy for "Some Flipkart Product" on 
-Flipkart
+      [WebLookup] Looking up return policy for "Some Flipkart Product" on Flipkart
 
       at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
 
@@ -240,8 +234,8 @@ https://www.flipkart.com/search?q=Some%20Flipkart%20Product
       [WebLookup] Jina fetch failed for 
 https://www.flipkart.com/search?q=Some%20Flipkart%20Product: Network error
 
-    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] 
-Jina timeout for ${url}`[39m)[33m;[39m
+    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] Jina 
+timeout for ${url}`[39m)[33m;[39m
      [90m 172 |[39m     } [36melse[39m {
     [31m[1m>[22m[39m[90m 173 |[39m       
 console[33m.[39merror([32m`[WebLookup] Jina fetch failed for 
@@ -266,8 +260,7 @@ ${url}:`[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
       at lookupReturnPolicy (src/lib/webLookupService.ts:103:11)
 
     console.log
-      [WebLookup] Looking up return policy for "Some Myntra Product" on 
-Myntra
+      [WebLookup] Looking up return policy for "Some Myntra Product" on Myntra
 
       at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
 
@@ -286,8 +279,8 @@ https://www.myntra.com/some-myntra-product
       [WebLookup] Jina fetch failed for 
 https://www.myntra.com/some-myntra-product: Network error
 
-    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] 
-Jina timeout for ${url}`[39m)[33m;[39m
+    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] Jina 
+timeout for ${url}`[39m)[33m;[39m
      [90m 172 |[39m     } [36melse[39m {
     [31m[1m>[22m[39m[90m 173 |[39m       
 console[33m.[39merror([32m`[WebLookup] Jina fetch failed for 
@@ -312,8 +305,7 @@ ${url}:`[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
       at lookupReturnPolicy (src/lib/webLookupService.ts:103:11)
 
     console.log
-      [WebLookup] Looking up return policy for "Some Meesho Product" on 
-Meesho
+      [WebLookup] Looking up return policy for "Some Meesho Product" on Meesho
 
       at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
 
@@ -332,8 +324,8 @@ https://meesho.com/search?q=Some%20Meesho%20Product
       [WebLookup] Jina fetch failed for 
 https://meesho.com/search?q=Some%20Meesho%20Product: Network error
 
-    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] 
-Jina timeout for ${url}`[39m)[33m;[39m
+    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] Jina 
+timeout for ${url}`[39m)[33m;[39m
      [90m 172 |[39m     } [36melse[39m {
     [31m[1m>[22m[39m[90m 173 |[39m       
 console[33m.[39merror([32m`[WebLookup] Jina fetch failed for 
@@ -377,8 +369,8 @@ https://www.ajio.com/search/?text=Some%20Ajio%20Product
       [WebLookup] Jina fetch failed for 
 https://www.ajio.com/search/?text=Some%20Ajio%20Product: Network error
 
-    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] 
-Jina timeout for ${url}`[39m)[33m;[39m
+    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] Jina 
+timeout for ${url}`[39m)[33m;[39m
      [90m 172 |[39m     } [36melse[39m {
     [31m[1m>[22m[39m[90m 173 |[39m       
 console[33m.[39merror([32m`[WebLookup] Jina fetch failed for 
@@ -419,11 +411,11 @@ https://www.myntra.com/product/123/buy
       at lookupReturnPolicy (src/lib/webLookupService.ts:66:13)
 
     console.error
-      [WebLookup] Jina fetch failed for 
-https://www.myntra.com/product/123/buy: The operation was aborted.
+      [WebLookup] Jina fetch failed for https://www.myntra.com/product/123/buy: 
+The operation was aborted.
 
-    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] 
-Jina timeout for ${url}`[39m)[33m;[39m
+    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] Jina 
+timeout for ${url}`[39m)[33m;[39m
      [90m 172 |[39m     } [36melse[39m {
     [31m[1m>[22m[39m[90m 173 |[39m       
 console[33m.[39merror([32m`[WebLookup] Jina fetch failed for 
@@ -443,8 +435,7 @@ ${url}:`[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
       at lookupReturnPolicy (src/lib/webLookupService.ts:77:11)
 
     console.log
-      [WebLookup] Tier 2: Searching on marketplace: 
-https://www.myntra.com/product
+      [WebLookup] Tier 2: Searching on marketplace: https://www.myntra.com/product
 
       at lookupReturnPolicy (src/lib/webLookupService.ts:81:11)
 
@@ -452,13 +443,13 @@ https://www.myntra.com/product
       [WebLookup] Jina returned too little content for 
 https://www.myntra.com/product
 
-    [0m [90m 162 |[39m     [36mconst[39m text [33m=[39m 
-[36mawait[39m response[33m.[39mtext()[33m;[39m
+    [0m [90m 162 |[39m     [36mconst[39m text [33m=[39m [36mawait[39m 
+response[33m.[39mtext()[33m;[39m
      [90m 163 |[39m     [36mif[39m ([33m![39mtext [33m||[39m 
 text[33m.[39mlength [33m<[39m [35m100[39m) {
     [31m[1m>[22m[39m[90m 164 |[39m       
-console[33m.[39merror([32m`[WebLookup] Jina returned too little content 
-for ${url}`[39m)[33m;[39m
+console[33m.[39merror([32m`[WebLookup] Jina returned too little content for 
+${url}`[39m)[33m;[39m
      [90m     |[39m               [31m[1m^[22m[39m
      [90m 165 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
      [90m 166 |[39m     }
@@ -490,14 +481,13 @@ https://www.flipkart.com/product/p/abc
       at lookupReturnPolicy (src/lib/webLookupService.ts:66:13)
 
     console.error
-      [WebLookup] Jina returned 403 for 
-https://www.flipkart.com/product/p/abc
+      [WebLookup] Jina returned 403 for https://www.flipkart.com/product/p/abc
 
     [0m [90m 156 |[39m
      [90m 157 |[39m     [36mif[39m ([33m![39mresponse[33m.[39mok) {
     [31m[1m>[22m[39m[90m 158 |[39m       
-console[33m.[39merror([32m`[WebLookup] Jina returned ${response.status} 
-for ${url}`[39m)[33m;[39m
+console[33m.[39merror([32m`[WebLookup] Jina returned ${response.status} for 
+${url}`[39m)[33m;[39m
      [90m     |[39m               [31m[1m^[22m[39m
      [90m 159 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
      [90m 160 |[39m     }
@@ -522,13 +512,13 @@ https://www.flipkart.com/search?q=Product
       [WebLookup] Jina returned too little content for 
 https://www.flipkart.com/search?q=Product
 
-    [0m [90m 162 |[39m     [36mconst[39m text [33m=[39m 
-[36mawait[39m response[33m.[39mtext()[33m;[39m
+    [0m [90m 162 |[39m     [36mconst[39m text [33m=[39m [36mawait[39m 
+response[33m.[39mtext()[33m;[39m
      [90m 163 |[39m     [36mif[39m ([33m![39mtext [33m||[39m 
 text[33m.[39mlength [33m<[39m [35m100[39m) {
     [31m[1m>[22m[39m[90m 164 |[39m       
-console[33m.[39merror([32m`[WebLookup] Jina returned too little content 
-for ${url}`[39m)[33m;[39m
+console[33m.[39merror([32m`[WebLookup] Jina returned too little content for 
+${url}`[39m)[33m;[39m
      [90m     |[39m               [31m[1m^[22m[39m
      [90m 165 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
      [90m 166 |[39m     }
@@ -554,8 +544,7 @@ for ${url}`[39m)[33m;[39m
       at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
 
     console.log
-      [WebLookup] Tier 1: Fetching product page: 
-https://www.amazon.in/dp/B000TEST
+      [WebLookup] Tier 1: Fetching product page: https://www.amazon.in/dp/B000TEST
 
       at lookupReturnPolicy (src/lib/webLookupService.ts:66:13)
 
@@ -563,13 +552,13 @@ https://www.amazon.in/dp/B000TEST
       [WebLookup] Jina returned too little content for 
 https://www.amazon.in/dp/B000TEST
 
-    [0m [90m 162 |[39m     [36mconst[39m text [33m=[39m 
-[36mawait[39m response[33m.[39mtext()[33m;[39m
+    [0m [90m 162 |[39m     [36mconst[39m text [33m=[39m [36mawait[39m 
+response[33m.[39mtext()[33m;[39m
      [90m 163 |[39m     [36mif[39m ([33m![39mtext [33m||[39m 
 text[33m.[39mlength [33m<[39m [35m100[39m) {
     [31m[1m>[22m[39m[90m 164 |[39m       
-console[33m.[39merror([32m`[WebLookup] Jina returned too little content 
-for ${url}`[39m)[33m;[39m
+console[33m.[39merror([32m`[WebLookup] Jina returned too little content for 
+${url}`[39m)[33m;[39m
      [90m     |[39m               [31m[1m^[22m[39m
      [90m 165 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
      [90m 166 |[39m     }
@@ -594,13 +583,13 @@ https://www.amazon.in/s?k=Product
       [WebLookup] Jina returned too little content for 
 https://www.amazon.in/s?k=Product
 
-    [0m [90m 162 |[39m     [36mconst[39m text [33m=[39m 
-[36mawait[39m response[33m.[39mtext()[33m;[39m
+    [0m [90m 162 |[39m     [36mconst[39m text [33m=[39m [36mawait[39m 
+response[33m.[39mtext()[33m;[39m
      [90m 163 |[39m     [36mif[39m ([33m![39mtext [33m||[39m 
 text[33m.[39mlength [33m<[39m [35m100[39m) {
     [31m[1m>[22m[39m[90m 164 |[39m       
-console[33m.[39merror([32m`[WebLookup] Jina returned too little content 
-for ${url}`[39m)[33m;[39m
+console[33m.[39merror([32m`[WebLookup] Jina returned too little content for 
+${url}`[39m)[33m;[39m
      [90m     |[39m               [31m[1m^[22m[39m
      [90m 165 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
      [90m 166 |[39m     }
@@ -620,11 +609,11 @@ for ${url}`[39m)[33m;[39m
 
       at lookupReturnPolicy (src/lib/webLookupService.ts:103:11)
 
-PASS src/__tests__/llmService.test.ts
 PASS src/__tests__/gmailParser.test.ts
+PASS src/__tests__/llmService.test.ts
 
 Test Suites: 3 passed, 3 total
 Tests:       53 passed, 53 total
 Snapshots:   0 total
-Time:        0.867 s, estimated 1 s
+Time:        0.74 s, estimated 1 s
 Ran all test suites.

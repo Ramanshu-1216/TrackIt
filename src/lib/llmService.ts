@@ -78,7 +78,9 @@ For irrelevant emails:
 {"type":"none","data":null}`;
 
   try {
-    const result = await model.generateContent(prompt);
+    const result = await withRetry(() => model.generateContent(prompt));
+    if (!result) return { type: 'none', data: null };
+
     const text = result.response.text().trim();
     const parsed = parseJsonResponse(text);
 
@@ -126,7 +128,9 @@ Respond with ONLY a single integer (the number of days). Examples:
 - If not found → -1`;
 
   try {
-    const result = await model.generateContent(prompt);
+    const result = await withRetry(() => model.generateContent(prompt));
+    if (!result) return null;
+
     const text = result.response.text().trim();
     const days = parseInt(text);
     if (isNaN(days) || days === -1) return null;
@@ -161,7 +165,9 @@ For Ajio: look for URLs with product paths
 Respond with ONLY the full URL string. If no matching product found, respond with "null".`;
 
   try {
-    const result = await model.generateContent(prompt);
+    const result = await withRetry(() => model.generateContent(prompt));
+    if (!result) return null;
+
     const text = result.response.text().trim();
     if (text === 'null' || text.length < 10) return null;
     // Clean up any surrounding quotes
@@ -173,6 +179,34 @@ Respond with ONLY the full URL string. If no matching product found, respond wit
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  retries = 5,
+  delay = 5000
+): Promise<T | null> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      const status = error.status || error.response?.status;
+      const isQuotaError = status === 429;
+      const isRetryable = isQuotaError || status === 500 || status === 503;
+      
+      if (isRetryable && i < retries - 1) {
+        // For free tier 429s, we need to be very patient (usually 30-60s)
+        const waitTime = isQuotaError ? 35000 : delay; 
+        console.warn(`[LLM] ${isQuotaError ? 'Quota exceeded' : 'Internal error'}, waiting ${waitTime/1000}s... (Attempt ${i + 1}/${retries})`);
+        
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+        delay *= 2; 
+        continue;
+      }
+      throw error;
+    }
+  }
+  return null;
+}
 
 function parseJsonResponse(text: string): ExtractionResult | null {
   // Try direct parse first
