@@ -141,10 +141,16 @@ function filterRelevantUrls(
 async function fetchWithJina(url: string): Promise<string | null> {
   try {
     const jinaUrl = `https://r.jina.ai/${url}`;
+    const headers: Record<string, string> = {
+      'Accept': 'text/plain',
+    };
+
+    if (process.env.JINA_API_KEY) {
+      headers['Authorization'] = `Bearer ${process.env.JINA_API_KEY}`;
+    }
+
     const response = await fetch(jinaUrl, {
-      headers: {
-        'Accept': 'text/plain',
-      },
+      headers,
       signal: AbortSignal.timeout(15000), // 15s timeout
     });
 

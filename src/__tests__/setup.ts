@@ -1,5 +1,6 @@
 // Mock environment variables before any test runs
 process.env.GEMINI_API_KEY = 'test-gemini-key';
+process.env.JINA_API_KEY = 'test-jina-key';
 process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
 
 // Setup fetch mock
