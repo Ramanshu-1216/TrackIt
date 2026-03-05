@@ -25,14 +25,19 @@ const ECOMMERCE_DOMAINS = [
 
 // Build Gmail query: from:(domain1 OR domain2 OR ...)
 function buildGmailQuery(lastSync?: Date): string {
-  const fromClause = ECOMMERCE_DOMAINS.map(d => d).join(' OR ');
+  const fromClause = ECOMMERCE_DOMAINS.join(' OR ');
   let query = `from:(${fromClause})`;
 
-  // TEMPORARY: For verification, force scan from yesterday evening (Mar 4th 6 PM IST)
-  // Unix timestamp for 2026-03-04 12:30:00 UTC
-  const testTimestamp = 1772584200; 
-  console.log(`[GmailSync] TEST MODE: Scanning emails since 2026-03-04 18:00 IST (after:${testTimestamp})`);
-  query += ` after:${testTimestamp}`;
+  if (lastSync) {
+    // Gmail 'after' query uses seconds or YYYY/MM/DD
+    const seconds = Math.floor(lastSync.getTime() / 1000);
+    query += ` after:${seconds}`;
+    console.log(`[GmailSync] Scanning emails since last sync: ${lastSync.toISOString()} (after:${seconds})`);
+  } else {
+    // Default to scan last 30 days if no lastSync
+    query += ` newer_than:30d`;
+    console.log(`[GmailSync] No last sync found, scanning last 30 days`);
+  }
 
   return query;
 }
@@ -346,20 +351,6 @@ export async function scanForOrders(userId: string) {
       // Decode full email body
       const decoded = extractEmailBody(payload);
       
-      // Debug: Save HTML to file for user to inspect
-      if (decoded.html) {
-        try {
-          const debugDir = path.join(process.cwd(), 'debug_emails');
-          if (!fs.existsSync(debugDir)) fs.mkdirSync(debugDir, { recursive: true });
-          const safeSubject = subject.replace(/[^a-z0-9]/gi, '_').toLowerCase().slice(0, 50);
-          const filename = `${msg.id}_${safeSubject}.html`;
-          fs.writeFileSync(path.join(debugDir, filename), decoded.html);
-          console.log(`[GmailSync] Saved debug HTML: debug_emails/${filename}`);
-        } catch (err) {
-          console.error('[GmailSync] Failed to save debug HTML:', err);
-        }
-      }
-
       // Combine text and stripped HTML to ensure no links are missed
       // stripHtml will also append any hrefs it finds.
       const body = (decoded.text + '\n' + stripHtml(decoded.html)).trim();
