@@ -42,6 +42,7 @@ const OrderSchema = new Schema<IOrder>(
       default: 'Pending',
     },
     gmailMessageId: { type: String },
+    productUrl: { type: String },
     notes: { type: String },
   },
   { timestamps: true }

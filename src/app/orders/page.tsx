@@ -19,6 +19,7 @@ interface Order {
   replaceable?: boolean;
   returnPolicyDetails?: string;
   status: 'Pending' | 'Shipped' | 'Out for delivery' | 'Delivered' | 'Returned' | 'Kept';
+  productUrl?: string; // Added productUrl
   notes?: string;
 }
 
@@ -66,6 +67,8 @@ function getDaysLabel(days: number) {
 const emptyForm = {
   itemName: '', marketplace: 'Amazon', purchaseDate: '', deliveryDate: '',
   returnWindowDays: 7, status: 'Pending', notes: '',
+  orderId: '', productId: '', productUrl: '',
+  returnable: false, replaceable: false, returnPolicyDetails: '',
 };
 
 export default function OrdersPage() {
@@ -104,26 +107,42 @@ export default function OrdersPage() {
       returnWindowDays: order.returnWindowDays ?? 7,
       status: order.status,
       notes: order.notes || '',
+      orderId: order.orderId || '',
+      productId: order.productId || '',
+      productUrl: order.productUrl || '',
+      returnable: order.returnable || false,
+      replaceable: order.replaceable || false,
+      returnPolicyDetails: order.returnPolicyDetails || '',
     });
     setShowModal(true);
   }
 
   async function handleSave() {
     setSaving(true);
-    const payload = { ...form, returnWindowDays: Number(form.returnWindowDays) };
+    const payload = { 
+      ...form, 
+      returnWindowDays: form.status === 'Kept' ? null : Number(form.returnWindowDays),
+      returnable: Boolean(form.returnable),
+      replaceable: Boolean(form.replaceable),
+    };
     if (!payload.deliveryDate) delete (payload as any).deliveryDate;
 
-    if (editing) {
-      await fetch(`/api/orders/${editing._id}`, {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-    } else {
-      await fetch('/api/orders', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+    try {
+      if (editing) {
+        await fetch(`/api/orders/${editing._id}`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        await fetch('/api/orders', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      }
+    } catch (err) {
+      console.error('Failed to save order:', err);
     }
+    
     setSaving(false);
     setShowModal(false);
     fetchOrders();
@@ -186,53 +205,177 @@ export default function OrdersPage() {
             {filtered.map(order => {
               const daysLeft = order.returnDeadline ? getDaysLeft(order.returnDeadline) : null;
               return (
-                <div className="item-card" key={order._id} style={{ cursor: 'default' }}>
-                  <div className="item-logo">{marketplaceEmoji[order.marketplace] || '🏪'}</div>
-                  <div className="item-info">
-                    <div className="item-name">{order.itemName}</div>
-                    <div className="item-meta">
-                      {order.orderId && (
-                        <code style={{ 
-                          fontSize: '10px', 
-                          background: 'var(--bg-secondary)', 
-                          padding: '2px 4px', 
-                          borderRadius: '4px', 
-                          marginRight: '8px',
-                          fontFamily: 'monospace',
+                <div className="item-card" key={order._id} style={{ 
+                  cursor: 'default', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '16px',
+                  alignItems: 'stretch',
+                  padding: '20px'
+                }}>
+                  {/* Top Row: Logo, Title, and Actions */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                    <div className="item-logo" style={{ marginTop: '2px' }}>
+                      {marketplaceEmoji[order.marketplace] || '🏪'}
+                    </div>
+                    
+                    <div className="item-info" style={{ flex: 1 }}>
+                      <div className="item-name" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '6px' }}>
+                        {order.itemName}
+                      </div>
+                      
+                      {/* Metadata Row */}
+                      <div className="item-meta" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ 
+                          fontSize: '11px', 
+                          fontWeight: 600, 
+                          color: 'var(--text-primary)',
+                          background: 'var(--bg-secondary)',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
                           border: '1px solid var(--border)'
                         }}>
-                          {order.orderId}
-                        </code>
-                      )}
-                      {order.marketplace} · Purchased {formatDate(order.purchaseDate)}
-                      {order.deliveryDate && ` · Delivered ${formatDate(order.deliveryDate)}`}
-                    </div>
-                    {order.returnPolicyDetails && !order.returnPolicyDetails.toLowerCase().includes('not found') && (
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', fontStyle: 'italic' }}>
-                        {order.returnPolicyDetails.length > 80 ? order.returnPolicyDetails.substring(0, 80) + '...' : order.returnPolicyDetails}
+                          {order.marketplace}
+                        </span>
+                        
+                        {order.orderId && (
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>ID:</span>
+                            <code style={{ 
+                              fontSize: '11px', 
+                              background: 'transparent', 
+                              color: 'var(--text-secondary)',
+                              fontFamily: 'monospace'
+                            }}>
+                              {order.orderId}
+                            </code>
+                          </span>
+                        )}
+
+                        {order.productId && (
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>ASIN:</span>
+                            <code style={{ 
+                              fontSize: '11px', 
+                              background: 'transparent', 
+                              color: 'var(--text-secondary)',
+                              fontFamily: 'monospace'
+                            }}>
+                              {order.productId}
+                            </code>
+                          </span>
+                        )}
+                        
+                        <span style={{ color: 'var(--border)', fontSize: '14px' }}>•</span>
+                        <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                           Purchased {formatDate(order.purchaseDate)}
+                        </span>
                       </div>
-                    )}
+                    </div>
+
+                    {/* Right Side: Status and Main Actions */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
+                      <span className={`badge badge-${order.status.toLowerCase().replace(/\s+/g, '-')}`} style={{ padding: '4px 12px' }}>
+                        {statusEmoji[order.status]} {order.status}
+                      </span>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        {order.productUrl && (
+                          <a href={order.productUrl} target="_blank" rel="noopener noreferrer" className="btn-icon" title="Open Product Page" style={{ 
+                            background: 'var(--bg-glass)',
+                            border: '1px solid var(--border)',
+                            borderRadius: '8px'
+                          }}>🛍️</a>
+                        )}
+                        <button className="btn-icon" onClick={() => openEdit(order)} title="Edit" style={{ 
+                          background: 'var(--bg-glass)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '8px'
+                        }}>✏️</button>
+                        <button className="btn-icon" onClick={() => setDeleteId(order._id)} title="Delete" style={{ 
+                          background: 'var(--danger-bg)',
+                          border: '1px solid rgba(239, 68, 68, 0.1)',
+                          color: 'var(--danger)',
+                          borderRadius: '8px'
+                        }}>🗑️</button>
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
-                    <div style={{ textAlign: 'right' }}>
-                      {order.returnDeadline ? (
-                        <>
-                          <div className="item-date">{order.replaceable && !order.returnable ? 'Replace' : 'Return'} by {formatDate(order.returnDeadline)}</div>
-                          <span className={`item-days ${getDaysClass(daysLeft!)}`}>{getDaysLabel(daysLeft!)}</span>
-                        </>
-                      ) : (
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                          {order.returnWindowDays === null ? 'Non-returnable' : `Return window: ${order.returnWindowDays}d`}
+
+                  {/* Bottom Row: Policy Info & Deadline */}
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'flex-end', 
+                    justifyContent: 'space-between',
+                    paddingTop: '12px',
+                    borderTop: '1px solid var(--border)',
+                    marginTop: '4px'
+                  }}>
+                    <div style={{ flex: 1, marginRight: '24px' }}>
+                      <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                        {order.returnable && (
+                          <span style={{ 
+                            fontSize: '10px', 
+                            background: 'rgba(56, 189, 248, 0.1)', 
+                            color: '#38bdf8', 
+                            padding: '2px 8px', 
+                            borderRadius: '4px', 
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            border: '1px solid rgba(56, 189, 248, 0.2)'
+                          }}>Returnable</span>
+                        )}
+                        {order.replaceable && (
+                          <span style={{ 
+                            fontSize: '10px', 
+                            background: 'rgba(34, 197, 94, 0.1)', 
+                            color: '#22c55e', 
+                            padding: '2px 8px', 
+                            borderRadius: '4px', 
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            border: '1px solid rgba(34, 197, 94, 0.2)'
+                          }}>Replaceable</span>
+                        )}
+                      </div>
+                      
+                      {order.returnPolicyDetails && !order.returnPolicyDetails.toLowerCase().includes('not found') && (
+                        <div style={{ 
+                          fontSize: '12px', 
+                          color: 'var(--text-secondary)', 
+                          lineHeight: '1.5',
+                          maxWidth: '650px',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden'
+                        }}>
+                          {order.returnPolicyDetails}
                         </div>
                       )}
                     </div>
-                    <span className={`badge badge-${order.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                      {statusEmoji[order.status]} {order.status}
-                    </span>
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      <button className="btn-icon" onClick={() => openEdit(order)} title="Edit">✏️</button>
-                      <button className="btn-icon" onClick={() => setDeleteId(order._id)} title="Delete"
-                        style={{ color: 'var(--danger)' }}>🗑️</button>
+
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      {order.returnDeadline && order.status !== 'Kept' ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
+                            Deadline
+                          </div>
+                          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                            {formatDate(order.returnDeadline)}
+                          </div>
+                          <span className={`item-days ${getDaysClass(daysLeft!)}`} style={{ margin: 0 }}>
+                            {getDaysLabel(daysLeft!)}
+                          </span>
+                        </div>
+                      ) : (
+                        <div style={{ color: 'var(--text-muted)', fontSize: '12px', fontWeight: 500 }}>
+                          {order.status === 'Kept' ? 'Successfully items kept' : 
+                           order.returnWindowDays === null ? 'Non-returnable' : 
+                           `Return Window: ${order.returnWindowDays}d`}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -267,6 +410,21 @@ export default function OrdersPage() {
                   </select>
                 </div>
                 <div className="form-group">
+                  <label className="form-label">Order ID</label>
+                  <input className="form-input" placeholder="e.g. 408-7715949-8756339"
+                    value={form.orderId} onChange={e => setForm({ ...form, orderId: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Product ID / ASIN</label>
+                  <input className="form-input" placeholder="e.g. B0F19GZXB1"
+                    value={form.productId} onChange={e => setForm({ ...form, productId: e.target.value })} />
+                </div>
+                <div className="form-group full">
+                  <label className="form-label">Product URL</label>
+                  <input className="form-input" placeholder="https://www.amazon.in/..."
+                    value={form.productUrl} onChange={e => setForm({ ...form, productUrl: e.target.value })} />
+                </div>
+                <div className="form-group">
                   <label className="form-label">Purchase Date *</label>
                   <input type="date" className="form-input" value={form.purchaseDate}
                     onChange={e => setForm({ ...form, purchaseDate: e.target.value })} />
@@ -276,15 +434,34 @@ export default function OrdersPage() {
                   <input type="date" className="form-input" value={form.deliveryDate}
                     onChange={e => setForm({ ...form, deliveryDate: e.target.value })} />
                 </div>
-                <div className="form-group full">
-                  <label className="form-label">Return Window (days) *</label>
-                  <input type="number" className="form-input" min={1} max={365}
-                    value={form.returnWindowDays}
+                <div className="form-group">
+                  <label className="form-label">Return Window (days)</label>
+                  <input type="number" className="form-input" min={0} max={365}
+                    value={form.returnWindowDays || ''}
                     onChange={e => setForm({ ...form, returnWindowDays: Number(e.target.value) })} />
+                </div>
+                <div className="form-group" style={{ display: 'flex', gap: '16px', alignItems: 'center', paddingTop: '24px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
+                    <input type="checkbox" checked={form.returnable}
+                      onChange={e => setForm({ ...form, returnable: e.target.checked })} />
+                    Returnable
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
+                    <input type="checkbox" checked={form.replaceable}
+                      onChange={e => setForm({ ...form, replaceable: e.target.checked })} />
+                    Replaceable
+                  </label>
+                </div>
+                <div className="form-group full">
+                  <label className="form-label">Return Policy Details</label>
+                  <textarea className="form-textarea" placeholder="Paste return policy text here..."
+                    style={{ height: '60px' }}
+                    value={form.returnPolicyDetails} onChange={e => setForm({ ...form, returnPolicyDetails: e.target.value })} />
                 </div>
                 <div className="form-group full">
                   <label className="form-label">Notes</label>
                   <textarea className="form-textarea" placeholder="Any extra details..."
+                    style={{ height: '40px' }}
                     value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
                 </div>
               </div>

@@ -14,6 +14,8 @@ interface Order {
   deliveryDate?: string;
   returnDeadline?: string;
   returnWindowDays: number | null;
+  returnable?: boolean;
+  replaceable?: boolean;
 }
 
 interface Subscription {
@@ -234,7 +236,11 @@ export default function DashboardPage() {
                       <div className="item-logo">{getEmoji(order.marketplace, marketplaceEmojis)}</div>
                       <div className="item-info">
                         <div className="item-name">{order.itemName}</div>
-                        <div className="item-meta">{order.marketplace}</div>
+                        <div style={{ display: 'flex', gap: '4px', marginTop: '2px' }}>
+                          <span className="item-meta">{order.marketplace}</span>
+                          {order.returnable && <span style={{ fontSize: '9px', background: '#e1f5fe', color: '#0288d1', padding: '0px 4px', borderRadius: '4px', fontWeight: 600 }}>Ret</span>}
+                          {order.replaceable && <span style={{ fontSize: '9px', background: '#f1f8e9', color: '#388e3c', padding: '0px 4px', borderRadius: '4px', fontWeight: 600 }}>Repl</span>}
+                        </div>
                       </div>
                       <div className="item-right">
                         <div className="item-date">{order.returnDeadline ? formatDate(order.returnDeadline) : 'N/A'}</div>
