@@ -1,4 +1,4 @@
-import { google } from 'googleapis';
+import { google, gmail_v1 } from 'googleapis';
 import { oauth2Client } from './googleAuth';
 import Order from '@/models/Order';
 import Subscription from '@/models/Subscription';
@@ -22,14 +22,16 @@ const ECOMMERCE_DOMAINS = [
 
 // Build Gmail query: from:(domain1 OR domain2 OR ...)
 function buildGmailQuery(lastSync?: Date): string {
-  const fromClause = ECOMMERCE_DOMAINS.map(d => d).join(' OR ');
+  const fromClause = ECOMMERCE_DOMAINS.map((d) => d).join(' OR ');
   let query = `from:(${fromClause})`;
 
   if (lastSync) {
     const syncDate = new Date(lastSync);
     // Subtract 12 hours (43200 seconds) to handle timezone shifts/skew reliably
     const unixSeconds = Math.floor(syncDate.getTime() / 1000) - 43200;
-    console.log(`[GmailSync] lastSync: ${syncDate.toISOString()}, Unix (with 12h buffer): ${unixSeconds}`);
+    console.log(
+      `[GmailSync] lastSync: ${syncDate.toISOString()}, Unix (with 12h buffer): ${unixSeconds}`
+    );
     query += ` after:${unixSeconds}`;
   } else {
     query += ' newer_than:30d';
@@ -44,7 +46,7 @@ function buildGmailQuery(lastSync?: Date): string {
  * Recursively extract text content from Gmail message payload.
  * Handles multipart messages, decodes base64url bodies.
  */
-function extractEmailBody(payload: any): string {
+function extractEmailBody(payload: gmail_v1.Schema$MessagePart): string {
   let textContent = '';
   let htmlContent = '';
 
@@ -95,27 +97,29 @@ function decodeBase64Url(data: string): string {
  * Strip HTML tags and extract clean text
  */
 function stripHtml(html: string): string {
-  return html
-    // Remove style/script blocks entirely
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-    // Replace common block elements with newlines
-    .replace(/<\/(p|div|tr|li|h[1-6])>/gi, '\n')
-    .replace(/<br\s*\/?>/gi, '\n')
-    // Remove all remaining tags
-    .replace(/<[^>]+>/g, ' ')
-    // Decode HTML entities
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code)))
-    // Clean up whitespace
-    .replace(/[ \t]+/g, ' ')
-    .replace(/\n\s*\n/g, '\n')
-    .trim();
+  return (
+    html
+      // Remove style/script blocks entirely
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+      // Replace common block elements with newlines
+      .replace(/<\/(p|div|tr|li|h[1-6])>/gi, '\n')
+      .replace(/<br\s*\/?>/gi, '\n')
+      // Remove all remaining tags
+      .replace(/<[^>]+>/g, ' ')
+      // Decode HTML entities
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code)))
+      // Clean up whitespace
+      .replace(/[ \t]+/g, ' ')
+      .replace(/\n\s*\n/g, '\n')
+      .trim()
+  );
 }
 
 /**
@@ -125,9 +129,7 @@ function extractUrls(text: string): string[] {
   const urlPattern = /https?:\/\/[^\s"'<>\])]+/gi;
   const matches = text.match(urlPattern) || [];
   // Deduplicate and clean trailing punctuation
-  const cleaned = matches.map(url =>
-    url.replace(/[.,;:!?)}\]]+$/, '')
-  );
+  const cleaned = matches.map((url) => url.replace(/[.,;:!?)}\]]+$/, ''));
   return [...new Set(cleaned)];
 }
 
@@ -163,18 +165,19 @@ export async function scanForOrders(userId: string) {
 
   const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
-  // Auto-refresh tokens and persist to DB
   oauth2Client.on('tokens', async (tokens) => {
-    const updateData: any = {};
+    const updateData: Record<string, string | number> = {};
     if (tokens.access_token) updateData.access_token = tokens.access_token;
     if (tokens.refresh_token) updateData.refresh_token = tokens.refresh_token;
     if (tokens.expiry_date) updateData.expires_at = Math.floor(tokens.expiry_date / 1000);
 
     if (Object.keys(updateData).length > 0) {
-      await mongoose.connection.db?.collection('accounts').updateOne(
-        { userId: new mongoose.Types.ObjectId(userId), provider: 'google' },
-        { $set: updateData }
-      );
+      await mongoose.connection.db
+        ?.collection('accounts')
+        .updateOne(
+          { userId: new mongoose.Types.ObjectId(userId), provider: 'google' },
+          { $set: updateData }
+        );
     }
   });
 
@@ -193,13 +196,16 @@ export async function scanForOrders(userId: string) {
   const messages = res.data.messages || [];
   console.log(`[GmailSync] Found ${messages.length} messages to process`);
 
-  const newOrders: any[] = [];
-  const newSubs: any[] = [];
+  const newOrders: mongoose.Document[] = [];
+  const newSubs: mongoose.Document[] = [];
 
   for (const msg of messages) {
     try {
       // Skip already processed messages
-      const existingOrder = await Order.findOne({ gmailMessageId: msg.id, userId });
+      const existingOrder = await Order.findOne({
+        gmailMessageId: msg.id,
+        userId,
+      });
       const existingSub = await Subscription.findOne({
         notes: { $regex: msg.id! },
         userId,
@@ -221,13 +227,13 @@ export async function scanForOrders(userId: string) {
 
       // Extract headers
       const headers = payload.headers || [];
-      const subject = headers.find(h => h.name === 'Subject')?.value || '';
-      const fromHeader = headers.find(h => h.name === 'From')?.value || '';
-      const dateHeader = headers.find(h => h.name === 'Date')?.value || '';
+      const subject = headers.find((h) => h.name === 'Subject')?.value || '';
+      const fromHeader = headers.find((h) => h.name === 'From')?.value || '';
+      const dateHeader = headers.find((h) => h.name === 'Date')?.value || '';
       const senderDomain = extractSenderDomain(fromHeader);
 
       // Verify sender is from an e-commerce domain
-      const isEcommerce = ECOMMERCE_DOMAINS.some(d => senderDomain.includes(d));
+      const isEcommerce = ECOMMERCE_DOMAINS.some((d) => senderDomain.includes(d));
       if (!isEcommerce) {
         console.log(`[GmailSync] Skipping non-ecommerce sender: ${senderDomain}`);
         continue;
@@ -246,7 +252,7 @@ export async function scanForOrders(userId: string) {
       // Wait 5 seconds between each message to avoid hitting Gemini 15 RPM limit
       if (newOrders.length > 0 || newSubs.length > 0) {
         console.log('[GmailSync] Rate-limiting pause (5s)...');
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise((resolve) => setTimeout(resolve, 5000));
       }
 
       // Extract URLs from email body
@@ -287,8 +293,11 @@ export async function scanForOrders(userId: string) {
         );
 
         // Parse dates safely
-        const purchaseDate = safeParseDate(orderData.purchaseDate) || new Date(dateHeader) || new Date();
-        const deliveryDate = orderData.deliveryDate ? safeParseDate(orderData.deliveryDate) : undefined;
+        const purchaseDate =
+          safeParseDate(orderData.purchaseDate) || new Date(dateHeader) || new Date();
+        const deliveryDate = orderData.deliveryDate
+          ? safeParseDate(orderData.deliveryDate)
+          : undefined;
 
         const order = new Order({
           userId: new mongoose.Types.ObjectId(userId),
@@ -303,10 +312,13 @@ export async function scanForOrders(userId: string) {
         });
         await order.save();
         newOrders.push(order);
-        console.log(`[GmailSync] ✅ Saved order: ${orderData.itemName} (${returnWindowDays}d return)`);
+        console.log(
+          `[GmailSync] ✅ Saved order: ${orderData.itemName} (${returnWindowDays}d return)`
+        );
       }
-    } catch (error: any) {
-      console.error(`[GmailSync] Error processing message ${msg.id}:`, error.message);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error(`[GmailSync] Error processing message ${msg.id}:`, err.message);
       // Continue to next message instead of failing the entire batch
     }
   }
@@ -327,7 +339,9 @@ export async function scanForOrders(userId: string) {
     });
   }
 
-  console.log(`[GmailSync] Sync complete: ${newOrders.length} orders, ${newSubs.length} subscriptions`);
+  console.log(
+    `[GmailSync] Sync complete: ${newOrders.length} orders, ${newSubs.length} subscriptions`
+  );
   return { orders: newOrders, subscriptions: newSubs };
 }
 

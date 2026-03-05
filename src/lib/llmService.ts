@@ -1,17 +1,17 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface ExtractedOrder {
   itemName: string;
   marketplace: string;
-  purchaseDate: string;  // ISO date string
+  purchaseDate: string; // ISO date string
   deliveryDate: string | null;
   orderAmount: number | null;
-  status: 'Pending' | 'Delivered';
+  status: "Pending" | "Delivered";
   productUrls: string[];
 }
 
@@ -19,25 +19,25 @@ export interface ExtractedSubscription {
   serviceName: string;
   cost: number;
   currency: string;
-  billingCycle: 'Monthly' | 'Yearly' | 'Weekly';
-  nextRenewalDate: string;  // ISO date string
-  status: 'Active';
+  billingCycle: "Monthly" | "Yearly" | "Weekly";
+  nextRenewalDate: string; // ISO date string
+  status: "Active";
 }
 
 export interface ExtractionResult {
-  type: 'order' | 'subscription' | 'none';
+  type: "order" | "subscription" | "none";
   data: ExtractedOrder | ExtractedSubscription | null;
 }
 
 // ─── Email Data Extraction ───────────────────────────────────────────────────
 
 const MARKETPLACE_MAP: Record<string, string> = {
-  'amazon.in': 'Amazon',
-  'amazon.com': 'Amazon',
-  'flipkart.com': 'Flipkart',
-  'myntra.com': 'Myntra',
-  'meesho.com': 'Meesho',
-  'ajio.com': 'Ajio',
+  "amazon.in": "Amazon",
+  "amazon.com": "Amazon",
+  "flipkart.com": "Flipkart",
+  "myntra.com": "Myntra",
+  "meesho.com": "Meesho",
+  "ajio.com": "Ajio",
 };
 
 export async function extractDataFromEmail(
@@ -45,9 +45,9 @@ export async function extractDataFromEmail(
   body: string,
   senderDomain: string,
   emailDate: string,
-  productUrls: string[]
+  productUrls: string[],
 ): Promise<ExtractionResult> {
-  const marketplace = MARKETPLACE_MAP[senderDomain] || 'Other';
+  const marketplace = MARKETPLACE_MAP[senderDomain] || "Other";
 
   const prompt = `You are an email parser for an Indian e-commerce order tracking app.
 Analyze this email from ${marketplace} (${senderDomain}) and determine if it's an order confirmation, delivery update, or subscription invoice.
@@ -79,14 +79,14 @@ For irrelevant emails:
 
   try {
     const result = await withRetry(() => model.generateContent(prompt));
-    if (!result) return { type: 'none', data: null };
+    if (!result) return { type: "none", data: null };
 
     const text = result.response.text().trim();
     const parsed = parseJsonResponse(text);
 
-    if (parsed && parsed.type && parsed.type !== 'none' && parsed.data) {
+    if (parsed && parsed.type && parsed.type !== "none" && parsed.data) {
       // Inject product URLs extracted from email body if LLM didn't find any
-      if (parsed.type === 'order' && parsed.data) {
+      if (parsed.type === "order" && parsed.data) {
         const orderData = parsed.data as ExtractedOrder;
         if (!orderData.productUrls || orderData.productUrls.length === 0) {
           orderData.productUrls = productUrls;
@@ -96,10 +96,10 @@ For irrelevant emails:
       return parsed as ExtractionResult;
     }
 
-    return { type: 'none', data: null };
+    return { type: "none", data: null };
   } catch (error) {
-    console.error('[LLM] Extraction failed:', error);
-    return { type: 'none', data: null };
+    console.error("[LLM] Extraction failed:", error);
+    return { type: "none", data: null };
   }
 }
 
@@ -108,7 +108,7 @@ For irrelevant emails:
 export async function extractReturnPolicyFromPage(
   pageContent: string,
   productName: string,
-  marketplace: string
+  marketplace: string,
 ): Promise<number | null> {
   const prompt = `You are extracting the return policy from a product page on ${marketplace}.
 
@@ -136,7 +136,7 @@ Respond with ONLY a single integer (the number of days). Examples:
     if (isNaN(days) || days === -1) return null;
     return days;
   } catch (error) {
-    console.error('[LLM] Return policy extraction failed:', error);
+    console.error("[LLM] Return policy extraction failed:", error);
     return null;
   }
 }
@@ -146,7 +146,7 @@ Respond with ONLY a single integer (the number of days). Examples:
 export async function extractProductUrlFromSearch(
   searchContent: string,
   productName: string,
-  marketplace: string
+  marketplace: string,
 ): Promise<string | null> {
   const prompt = `You are looking at search results from ${marketplace} for the product: "${productName}".
 
@@ -169,11 +169,11 @@ Respond with ONLY the full URL string. If no matching product found, respond wit
     if (!result) return null;
 
     const text = result.response.text().trim();
-    if (text === 'null' || text.length < 10) return null;
+    if (text === "null" || text.length < 10) return null;
     // Clean up any surrounding quotes
-    return text.replace(/^["']|["']$/g, '');
+    return text.replace(/^["']|["']$/g, "");
   } catch (error) {
-    console.error('[LLM] Product URL extraction failed:', error);
+    console.error("[LLM] Product URL extraction failed:", error);
     return null;
   }
 }
@@ -183,23 +183,26 @@ Respond with ONLY the full URL string. If no matching product found, respond wit
 async function withRetry<T>(
   fn: () => Promise<T>,
   retries = 5,
-  delay = 5000
+  delay = 5000,
 ): Promise<T | null> {
   for (let i = 0; i < retries; i++) {
     try {
       return await fn();
-    } catch (error: any) {
-      const status = error.status || error.response?.status;
+    } catch (error: unknown) {
+      const err = error as { status?: number; response?: { status?: number } };
+      const status = err.status || err.response?.status;
       const isQuotaError = status === 429;
       const isRetryable = isQuotaError || status === 500 || status === 503;
-      
+
       if (isRetryable && i < retries - 1) {
         // For free tier 429s, we need to be very patient (usually 30-60s)
-        const waitTime = isQuotaError ? 35000 : delay; 
-        console.warn(`[LLM] ${isQuotaError ? 'Quota exceeded' : 'Internal error'}, waiting ${waitTime/1000}s... (Attempt ${i + 1}/${retries})`);
-        
-        await new Promise(resolve => setTimeout(resolve, waitTime));
-        delay *= 2; 
+        const waitTime = isQuotaError ? 35000 : delay;
+        console.warn(
+          `[LLM] ${isQuotaError ? "Quota exceeded" : "Internal error"}, waiting ${waitTime / 1000}s... (Attempt ${i + 1}/${retries})`,
+        );
+
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+        delay *= 2;
         continue;
       }
       throw error;
@@ -219,7 +222,10 @@ function parseJsonResponse(text: string): ExtractionResult | null {
       try {
         return JSON.parse(jsonMatch[0]);
       } catch {
-        console.error('[LLM] Failed to parse extracted JSON:', jsonMatch[0].slice(0, 200));
+        console.error(
+          "[LLM] Failed to parse extracted JSON:",
+          jsonMatch[0].slice(0, 200),
+        );
       }
     }
   }
