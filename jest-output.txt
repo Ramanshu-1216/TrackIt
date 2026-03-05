@@ -6,614 +6,514 @@ node.exe : PASS src/__tests__/webLookupService.test.ts
 At C:\Users\raman\AppData\Roaming\npm\npm.ps1:24 char:5
 +     & "node$exe"  "$basedir/node_modules/npm/bin/npm-cli.js" $args
 +     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (PASS src/__test...Service.test    
-.ts:String) [], RemoteException
+    + CategoryInfo          : NotSpecified: (PASS src/__test...Service.test 
+   .ts:String) [], RemoteException
     + FullyQualifiedErrorId : NativeCommandError
  
   ΓùÅ Console
 
     console.log
-      [WebLookup] Looking up return policy for "Samsung Galaxy M34 5G" on Amazon
+      [WebLookup] Tier 1: Fetching product page from email URL: 
+      https://www.amazon.in/dp/B0CTML42S2
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
-
-    console.log
-      [WebLookup] Tier 1: Fetching product page: 
-https://www.amazon.in/dp/B0CTML42S2
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:66:13)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:91:17)
 
     console.log
       [WebLookup] Γ£à Tier 1 success: 10 days from 
 https://www.amazon.in/dp/B0CTML42S2
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:71:17)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:105:15)
 
     console.log
-      [WebLookup] Looking up return policy for "Nike Air Max 270" on Flipkart
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
-
-    console.log
-      [WebLookup] Tier 1: Fetching product page: 
+      [WebLookup] Tier 1: Fetching product page from email URL: 
+      
 https://www.flipkart.com/nike-air-max-270-running-shoes/p/itm2b9e8c7cf2b45
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:66:13)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:91:17)
 
     console.log
       [WebLookup] Γ£à Tier 1 success: 7 days from 
 https://www.flipkart.com/nike-air-max-270-running-shoes/p/itm2b9e8c7cf2b45
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:71:17)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:105:15)
 
     console.log
-      [WebLookup] Looking up return policy for "H&M Slim Fit Formal Shirt" on 
-Myntra
+      [WebLookup] Tier 1: Fetching product page from email URL: 
+      https://www.myntra.com/shirts/hm/hm-men-slim-fit/23450678/buy
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
-
-    console.log
-      [WebLookup] Tier 1: Fetching product page: 
-https://www.myntra.com/shirts/hm/hm-men-slim-fit/23450678/buy
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:66:13)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:91:17)
 
     console.log
       [WebLookup] Γ£à Tier 1 success: 30 days from 
 https://www.myntra.com/shirts/hm/hm-men-slim-fit/23450678/buy
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:71:17)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:105:15)
 
     console.log
-      [WebLookup] Looking up return policy for "Customized Kurti" on Meesho
+      [WebLookup] Tier 1: Fetching product page from email URL: 
+      https://meesho.com/customized-kurti/p/12345
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
-
-    console.log
-      [WebLookup] Tier 1: Fetching product page: 
-https://meesho.com/customized-kurti/p/12345
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:66:13)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:91:17)
 
     console.log
       [WebLookup] Γ£à Tier 1 success: 0 days from 
 https://meesho.com/customized-kurti/p/12345
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:71:17)
-
-    console.log
-      [WebLookup] Looking up return policy for "Roadster Slim Fit Jeans" on Ajio
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
-
-    console.log
-      [WebLookup] Tier 1: Fetching product page: 
-https://www.ajio.com/some-non-product-link
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:66:13)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:105:15)
 
     console.log
       [WebLookup] Tier 1 failed, trying Tier 2...
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:77:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:110:11)
 
     console.log
       [WebLookup] Tier 2: Searching on marketplace: 
 https://www.ajio.com/search/?text=Roadster%20Slim%20Fit%20Jeans
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:81:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:114:11)
 
     console.log
       [WebLookup] Tier 2: Found product page: 
 https://www.ajio.com/roadster-slim-fit-jeans/p/465423095_darkblue
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:88:15)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:121:15)
 
     console.log
-      [WebLookup] Γ£à Tier 2 success: 7 days from 
-https://www.ajio.com/roadster-slim-fit-jeans/p/465423095_darkblue
+      [WebLookup] Tier 2 failed, falling back to Tier 3 defaults
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:93:19)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:133:11)
 
     console.log
-      [WebLookup] Looking up return policy for "Printed Cotton Kurti" on Meesho
+      [WebLookup] Γ£à Tier 3 fallback: 7 days for Ajio
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:136:11)
 
     console.log
       [WebLookup] Tier 1 failed, trying Tier 2...
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:77:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:110:11)
 
     console.log
       [WebLookup] Tier 2: Searching on marketplace: 
 https://meesho.com/search?q=Printed%20Cotton%20Kurti
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:81:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:114:11)
 
     console.log
       [WebLookup] Tier 2: Found product page: 
 https://meesho.com/printed-cotton-kurti/p/78901
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:88:15)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:121:15)
 
     console.log
       [WebLookup] Γ£à Tier 2 success: 7 days from 
 https://meesho.com/printed-cotton-kurti/p/78901
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:93:19)
-
-    console.log
-      [WebLookup] Looking up return policy for "Unknown Product" on Flipkart
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:126:19)
 
     console.log
       [WebLookup] Tier 1 failed, trying Tier 2...
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:77:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:110:11)
 
     console.log
       [WebLookup] Tier 2: Searching on marketplace: 
 https://www.flipkart.com/search?q=Unknown%20Product
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:81:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:114:11)
 
     console.log
       [WebLookup] Tier 2 failed, falling back to Tier 3 defaults
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:100:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:133:11)
 
     console.log
       [WebLookup] Γ£à Tier 3 fallback: 7 days for Flipkart
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:103:11)
-
-    console.log
-      [WebLookup] Looking up return policy for "Some Amazon Product" on Amazon
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:136:11)
 
     console.log
       [WebLookup] Tier 1 failed, trying Tier 2...
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:77:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:110:11)
 
     console.log
       [WebLookup] Tier 2: Searching on marketplace: 
 https://www.amazon.in/s?k=Some%20Amazon%20Product
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:81:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:114:11)
 
     console.error
       [WebLookup] Jina fetch failed for 
 https://www.amazon.in/s?k=Some%20Amazon%20Product: Network error
 
-    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] Jina 
-timeout for ${url}`[39m)[33m;[39m
-     [90m 172 |[39m     } [36melse[39m {
-    [31m[1m>[22m[39m[90m 173 |[39m       
+    [0m [90m 204 |[39m       console[33m.[39merror([32m`[WebLookup] 
+Jina timeout for ${url}`[39m)[33m;[39m
+     [90m 205 |[39m     } [36melse[39m {
+    [31m[1m>[22m[39m[90m 206 |[39m       
 console[33m.[39merror([32m`[WebLookup] Jina fetch failed for 
 ${url}:`[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
      [90m     |[39m               [31m[1m^[22m[39m
-     [90m 174 |[39m     }
-     [90m 175 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
-     [90m 176 |[39m   }[0m
+     [90m 207 |[39m     }
+     [90m 208 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 209 |[39m   }[0m
 
-      at fetchWithJina (src/lib/webLookupService.ts:173:15)
-      at lookupReturnPolicy (src/lib/webLookupService.ts:83:25)
+      at fetchWithJina (src/lib/webLookupService.ts:206:15)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:116:25)
       at Object.<anonymous> (src/__tests__/webLookupService.test.ts:173:18)
 
     console.log
       [WebLookup] Tier 2 failed, falling back to Tier 3 defaults
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:100:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:133:11)
 
     console.log
       [WebLookup] Γ£à Tier 3 fallback: 10 days for Amazon
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:103:11)
-
-    console.log
-      [WebLookup] Looking up return policy for "Some Flipkart Product" on Flipkart
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:136:11)
 
     console.log
       [WebLookup] Tier 1 failed, trying Tier 2...
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:77:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:110:11)
 
     console.log
       [WebLookup] Tier 2: Searching on marketplace: 
 https://www.flipkart.com/search?q=Some%20Flipkart%20Product
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:81:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:114:11)
 
     console.error
       [WebLookup] Jina fetch failed for 
 https://www.flipkart.com/search?q=Some%20Flipkart%20Product: Network error
 
-    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] Jina 
-timeout for ${url}`[39m)[33m;[39m
-     [90m 172 |[39m     } [36melse[39m {
-    [31m[1m>[22m[39m[90m 173 |[39m       
+    [0m [90m 204 |[39m       console[33m.[39merror([32m`[WebLookup] 
+Jina timeout for ${url}`[39m)[33m;[39m
+     [90m 205 |[39m     } [36melse[39m {
+    [31m[1m>[22m[39m[90m 206 |[39m       
 console[33m.[39merror([32m`[WebLookup] Jina fetch failed for 
 ${url}:`[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
      [90m     |[39m               [31m[1m^[22m[39m
-     [90m 174 |[39m     }
-     [90m 175 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
-     [90m 176 |[39m   }[0m
+     [90m 207 |[39m     }
+     [90m 208 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 209 |[39m   }[0m
 
-      at fetchWithJina (src/lib/webLookupService.ts:173:15)
-      at lookupReturnPolicy (src/lib/webLookupService.ts:83:25)
+      at fetchWithJina (src/lib/webLookupService.ts:206:15)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:116:25)
       at Object.<anonymous> (src/__tests__/webLookupService.test.ts:179:18)
 
     console.log
       [WebLookup] Tier 2 failed, falling back to Tier 3 defaults
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:100:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:133:11)
 
     console.log
       [WebLookup] Γ£à Tier 3 fallback: 7 days for Flipkart
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:103:11)
-
-    console.log
-      [WebLookup] Looking up return policy for "Some Myntra Product" on Myntra
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:136:11)
 
     console.log
       [WebLookup] Tier 1 failed, trying Tier 2...
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:77:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:110:11)
 
     console.log
       [WebLookup] Tier 2: Searching on marketplace: 
 https://www.myntra.com/some-myntra-product
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:81:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:114:11)
 
     console.error
       [WebLookup] Jina fetch failed for 
 https://www.myntra.com/some-myntra-product: Network error
 
-    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] Jina 
-timeout for ${url}`[39m)[33m;[39m
-     [90m 172 |[39m     } [36melse[39m {
-    [31m[1m>[22m[39m[90m 173 |[39m       
+    [0m [90m 204 |[39m       console[33m.[39merror([32m`[WebLookup] 
+Jina timeout for ${url}`[39m)[33m;[39m
+     [90m 205 |[39m     } [36melse[39m {
+    [31m[1m>[22m[39m[90m 206 |[39m       
 console[33m.[39merror([32m`[WebLookup] Jina fetch failed for 
 ${url}:`[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
      [90m     |[39m               [31m[1m^[22m[39m
-     [90m 174 |[39m     }
-     [90m 175 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
-     [90m 176 |[39m   }[0m
+     [90m 207 |[39m     }
+     [90m 208 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 209 |[39m   }[0m
 
-      at fetchWithJina (src/lib/webLookupService.ts:173:15)
-      at lookupReturnPolicy (src/lib/webLookupService.ts:83:25)
+      at fetchWithJina (src/lib/webLookupService.ts:206:15)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:116:25)
       at Object.<anonymous> (src/__tests__/webLookupService.test.ts:185:18)
 
     console.log
       [WebLookup] Tier 2 failed, falling back to Tier 3 defaults
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:100:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:133:11)
 
     console.log
       [WebLookup] Γ£à Tier 3 fallback: 7 days for Myntra
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:103:11)
-
-    console.log
-      [WebLookup] Looking up return policy for "Some Meesho Product" on Meesho
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:136:11)
 
     console.log
       [WebLookup] Tier 1 failed, trying Tier 2...
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:77:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:110:11)
 
     console.log
       [WebLookup] Tier 2: Searching on marketplace: 
 https://meesho.com/search?q=Some%20Meesho%20Product
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:81:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:114:11)
 
     console.error
       [WebLookup] Jina fetch failed for 
 https://meesho.com/search?q=Some%20Meesho%20Product: Network error
 
-    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] Jina 
-timeout for ${url}`[39m)[33m;[39m
-     [90m 172 |[39m     } [36melse[39m {
-    [31m[1m>[22m[39m[90m 173 |[39m       
+    [0m [90m 204 |[39m       console[33m.[39merror([32m`[WebLookup] 
+Jina timeout for ${url}`[39m)[33m;[39m
+     [90m 205 |[39m     } [36melse[39m {
+    [31m[1m>[22m[39m[90m 206 |[39m       
 console[33m.[39merror([32m`[WebLookup] Jina fetch failed for 
 ${url}:`[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
      [90m     |[39m               [31m[1m^[22m[39m
-     [90m 174 |[39m     }
-     [90m 175 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
-     [90m 176 |[39m   }[0m
+     [90m 207 |[39m     }
+     [90m 208 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 209 |[39m   }[0m
 
-      at fetchWithJina (src/lib/webLookupService.ts:173:15)
-      at lookupReturnPolicy (src/lib/webLookupService.ts:83:25)
+      at fetchWithJina (src/lib/webLookupService.ts:206:15)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:116:25)
       at Object.<anonymous> (src/__tests__/webLookupService.test.ts:191:18)
 
     console.log
       [WebLookup] Tier 2 failed, falling back to Tier 3 defaults
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:100:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:133:11)
 
     console.log
       [WebLookup] Γ£à Tier 3 fallback: 7 days for Meesho
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:103:11)
-
-    console.log
-      [WebLookup] Looking up return policy for "Some Ajio Product" on Ajio
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:136:11)
 
     console.log
       [WebLookup] Tier 1 failed, trying Tier 2...
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:77:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:110:11)
 
     console.log
       [WebLookup] Tier 2: Searching on marketplace: 
 https://www.ajio.com/search/?text=Some%20Ajio%20Product
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:81:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:114:11)
 
     console.error
       [WebLookup] Jina fetch failed for 
 https://www.ajio.com/search/?text=Some%20Ajio%20Product: Network error
 
-    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] Jina 
-timeout for ${url}`[39m)[33m;[39m
-     [90m 172 |[39m     } [36melse[39m {
-    [31m[1m>[22m[39m[90m 173 |[39m       
+    [0m [90m 204 |[39m       console[33m.[39merror([32m`[WebLookup] 
+Jina timeout for ${url}`[39m)[33m;[39m
+     [90m 205 |[39m     } [36melse[39m {
+    [31m[1m>[22m[39m[90m 206 |[39m       
 console[33m.[39merror([32m`[WebLookup] Jina fetch failed for 
 ${url}:`[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
      [90m     |[39m               [31m[1m^[22m[39m
-     [90m 174 |[39m     }
-     [90m 175 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
-     [90m 176 |[39m   }[0m
+     [90m 207 |[39m     }
+     [90m 208 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 209 |[39m   }[0m
 
-      at fetchWithJina (src/lib/webLookupService.ts:173:15)
-      at lookupReturnPolicy (src/lib/webLookupService.ts:83:25)
+      at fetchWithJina (src/lib/webLookupService.ts:206:15)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:116:25)
       at Object.<anonymous> (src/__tests__/webLookupService.test.ts:197:18)
 
     console.log
       [WebLookup] Tier 2 failed, falling back to Tier 3 defaults
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:100:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:133:11)
 
     console.log
       [WebLookup] Γ£à Tier 3 fallback: 7 days for Ajio
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:103:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:136:11)
 
     console.log
-      [WebLookup] Unknown marketplace "SomeOtherStore", using default 7 days
+      [WebLookup] No config for marketplace: SomeOtherStore
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:56:13)
-
-    console.log
-      [WebLookup] Looking up return policy for "Product" on Myntra
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:63:13)
 
     console.log
-      [WebLookup] Tier 1: Fetching product page: 
-https://www.myntra.com/product/123/buy
+      [WebLookup] Tier 1: Fetching product page from email URL: 
+      https://www.myntra.com/product/123/buy
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:66:13)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:91:17)
 
     console.error
-      [WebLookup] Jina fetch failed for https://www.myntra.com/product/123/buy: 
-The operation was aborted.
+      [WebLookup] Jina fetch failed for 
+https://www.myntra.com/product/123/buy: The operation was aborted.
 
-    [0m [90m 171 |[39m       console[33m.[39merror([32m`[WebLookup] Jina 
-timeout for ${url}`[39m)[33m;[39m
-     [90m 172 |[39m     } [36melse[39m {
-    [31m[1m>[22m[39m[90m 173 |[39m       
+    [0m [90m 204 |[39m       console[33m.[39merror([32m`[WebLookup] 
+Jina timeout for ${url}`[39m)[33m;[39m
+     [90m 205 |[39m     } [36melse[39m {
+    [31m[1m>[22m[39m[90m 206 |[39m       
 console[33m.[39merror([32m`[WebLookup] Jina fetch failed for 
 ${url}:`[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
      [90m     |[39m               [31m[1m^[22m[39m
-     [90m 174 |[39m     }
-     [90m 175 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
-     [90m 176 |[39m   }[0m
+     [90m 207 |[39m     }
+     [90m 208 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 209 |[39m   }[0m
 
-      at fetchWithJina (src/lib/webLookupService.ts:173:15)
-      at lookupReturnPolicy (src/lib/webLookupService.ts:67:25)
+      at fetchWithJina (src/lib/webLookupService.ts:206:15)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:92:25)
       at Object.<anonymous> (src/__tests__/webLookupService.test.ts:214:18)
 
     console.log
       [WebLookup] Tier 1 failed, trying Tier 2...
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:77:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:110:11)
 
     console.log
-      [WebLookup] Tier 2: Searching on marketplace: https://www.myntra.com/product
+      [WebLookup] Tier 2: Searching on marketplace: 
+https://www.myntra.com/product
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:81:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:114:11)
 
     console.error
       [WebLookup] Jina returned too little content for 
 https://www.myntra.com/product
 
-    [0m [90m 162 |[39m     [36mconst[39m text [33m=[39m [36mawait[39m 
-response[33m.[39mtext()[33m;[39m
-     [90m 163 |[39m     [36mif[39m ([33m![39mtext [33m||[39m 
+    [0m [90m 195 |[39m     [36mconst[39m text [33m=[39m 
+[36mawait[39m response[33m.[39mtext()[33m;[39m
+     [90m 196 |[39m     [36mif[39m ([33m![39mtext [33m||[39m 
 text[33m.[39mlength [33m<[39m [35m100[39m) {
-    [31m[1m>[22m[39m[90m 164 |[39m       
-console[33m.[39merror([32m`[WebLookup] Jina returned too little content for 
-${url}`[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 197 |[39m       
+console[33m.[39merror([32m`[WebLookup] Jina returned too little content 
+for ${url}`[39m)[33m;[39m
      [90m     |[39m               [31m[1m^[22m[39m
-     [90m 165 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
-     [90m 166 |[39m     }
-     [90m 167 |[39m[0m
+     [90m 198 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 199 |[39m     }
+     [90m 200 |[39m[0m
 
-      at fetchWithJina (src/lib/webLookupService.ts:164:15)
-      at lookupReturnPolicy (src/lib/webLookupService.ts:83:25)
+      at fetchWithJina (src/lib/webLookupService.ts:197:15)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:116:25)
       at Object.<anonymous> (src/__tests__/webLookupService.test.ts:214:18)
 
     console.log
       [WebLookup] Tier 2 failed, falling back to Tier 3 defaults
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:100:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:133:11)
 
     console.log
       [WebLookup] Γ£à Tier 3 fallback: 7 days for Myntra
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:103:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:136:11)
 
     console.log
-      [WebLookup] Looking up return policy for "Product" on Flipkart
+      [WebLookup] Tier 1: Fetching product page from email URL: 
+      https://www.flipkart.com/product/p/abc
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
-
-    console.log
-      [WebLookup] Tier 1: Fetching product page: 
-https://www.flipkart.com/product/p/abc
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:66:13)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:91:17)
 
     console.error
-      [WebLookup] Jina returned 403 for https://www.flipkart.com/product/p/abc
+      [WebLookup] Jina returned 403 for 
+https://www.flipkart.com/product/p/abc
 
-    [0m [90m 156 |[39m
-     [90m 157 |[39m     [36mif[39m ([33m![39mresponse[33m.[39mok) {
-    [31m[1m>[22m[39m[90m 158 |[39m       
-console[33m.[39merror([32m`[WebLookup] Jina returned ${response.status} for 
-${url}`[39m)[33m;[39m
+    [0m [90m 189 |[39m
+     [90m 190 |[39m     [36mif[39m ([33m![39mresponse[33m.[39mok) {
+    [31m[1m>[22m[39m[90m 191 |[39m       
+console[33m.[39merror([32m`[WebLookup] Jina returned ${response.status} 
+for ${url}`[39m)[33m;[39m
      [90m     |[39m               [31m[1m^[22m[39m
-     [90m 159 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
-     [90m 160 |[39m     }
-     [90m 161 |[39m[0m
+     [90m 192 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 193 |[39m     }
+     [90m 194 |[39m[0m
 
-      at fetchWithJina (src/lib/webLookupService.ts:158:15)
-      at lookupReturnPolicy (src/lib/webLookupService.ts:67:25)
+      at fetchWithJina (src/lib/webLookupService.ts:191:15)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:92:25)
       at Object.<anonymous> (src/__tests__/webLookupService.test.ts:222:18)
 
     console.log
       [WebLookup] Tier 1 failed, trying Tier 2...
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:77:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:110:11)
 
     console.log
       [WebLookup] Tier 2: Searching on marketplace: 
 https://www.flipkart.com/search?q=Product
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:81:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:114:11)
 
     console.error
       [WebLookup] Jina returned too little content for 
 https://www.flipkart.com/search?q=Product
 
-    [0m [90m 162 |[39m     [36mconst[39m text [33m=[39m [36mawait[39m 
-response[33m.[39mtext()[33m;[39m
-     [90m 163 |[39m     [36mif[39m ([33m![39mtext [33m||[39m 
+    [0m [90m 195 |[39m     [36mconst[39m text [33m=[39m 
+[36mawait[39m response[33m.[39mtext()[33m;[39m
+     [90m 196 |[39m     [36mif[39m ([33m![39mtext [33m||[39m 
 text[33m.[39mlength [33m<[39m [35m100[39m) {
-    [31m[1m>[22m[39m[90m 164 |[39m       
-console[33m.[39merror([32m`[WebLookup] Jina returned too little content for 
-${url}`[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 197 |[39m       
+console[33m.[39merror([32m`[WebLookup] Jina returned too little content 
+for ${url}`[39m)[33m;[39m
      [90m     |[39m               [31m[1m^[22m[39m
-     [90m 165 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
-     [90m 166 |[39m     }
-     [90m 167 |[39m[0m
+     [90m 198 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 199 |[39m     }
+     [90m 200 |[39m[0m
 
-      at fetchWithJina (src/lib/webLookupService.ts:164:15)
-      at lookupReturnPolicy (src/lib/webLookupService.ts:83:25)
+      at fetchWithJina (src/lib/webLookupService.ts:197:15)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:116:25)
       at Object.<anonymous> (src/__tests__/webLookupService.test.ts:222:18)
 
     console.log
       [WebLookup] Tier 2 failed, falling back to Tier 3 defaults
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:100:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:133:11)
 
     console.log
       [WebLookup] Γ£à Tier 3 fallback: 7 days for Flipkart
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:103:11)
-
-    console.log
-      [WebLookup] Looking up return policy for "Product" on Amazon
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:60:11)
-
-    console.log
-      [WebLookup] Tier 1: Fetching product page: https://www.amazon.in/dp/B000TEST
-
-      at lookupReturnPolicy (src/lib/webLookupService.ts:66:13)
-
-    console.error
-      [WebLookup] Jina returned too little content for 
-https://www.amazon.in/dp/B000TEST
-
-    [0m [90m 162 |[39m     [36mconst[39m text [33m=[39m [36mawait[39m 
-response[33m.[39mtext()[33m;[39m
-     [90m 163 |[39m     [36mif[39m ([33m![39mtext [33m||[39m 
-text[33m.[39mlength [33m<[39m [35m100[39m) {
-    [31m[1m>[22m[39m[90m 164 |[39m       
-console[33m.[39merror([32m`[WebLookup] Jina returned too little content for 
-${url}`[39m)[33m;[39m
-     [90m     |[39m               [31m[1m^[22m[39m
-     [90m 165 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
-     [90m 166 |[39m     }
-     [90m 167 |[39m[0m
-
-      at fetchWithJina (src/lib/webLookupService.ts:164:15)
-      at lookupReturnPolicy (src/lib/webLookupService.ts:67:25)
-      at Object.<anonymous> (src/__tests__/webLookupService.test.ts:229:18)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:136:11)
 
     console.log
       [WebLookup] Tier 1 failed, trying Tier 2...
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:77:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:110:11)
 
     console.log
       [WebLookup] Tier 2: Searching on marketplace: 
 https://www.amazon.in/s?k=Product
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:81:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:114:11)
 
     console.error
       [WebLookup] Jina returned too little content for 
 https://www.amazon.in/s?k=Product
 
-    [0m [90m 162 |[39m     [36mconst[39m text [33m=[39m [36mawait[39m 
-response[33m.[39mtext()[33m;[39m
-     [90m 163 |[39m     [36mif[39m ([33m![39mtext [33m||[39m 
+    [0m [90m 195 |[39m     [36mconst[39m text [33m=[39m 
+[36mawait[39m response[33m.[39mtext()[33m;[39m
+     [90m 196 |[39m     [36mif[39m ([33m![39mtext [33m||[39m 
 text[33m.[39mlength [33m<[39m [35m100[39m) {
-    [31m[1m>[22m[39m[90m 164 |[39m       
-console[33m.[39merror([32m`[WebLookup] Jina returned too little content for 
-${url}`[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 197 |[39m       
+console[33m.[39merror([32m`[WebLookup] Jina returned too little content 
+for ${url}`[39m)[33m;[39m
      [90m     |[39m               [31m[1m^[22m[39m
-     [90m 165 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
-     [90m 166 |[39m     }
-     [90m 167 |[39m[0m
+     [90m 198 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 199 |[39m     }
+     [90m 200 |[39m[0m
 
-      at fetchWithJina (src/lib/webLookupService.ts:164:15)
-      at lookupReturnPolicy (src/lib/webLookupService.ts:83:25)
+      at fetchWithJina (src/lib/webLookupService.ts:197:15)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:116:25)
       at Object.<anonymous> (src/__tests__/webLookupService.test.ts:229:18)
 
     console.log
       [WebLookup] Tier 2 failed, falling back to Tier 3 defaults
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:100:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:133:11)
 
     console.log
       [WebLookup] Γ£à Tier 3 fallback: 10 days for Amazon
 
-      at lookupReturnPolicy (src/lib/webLookupService.ts:103:11)
+      at lookupReturnPolicy (src/lib/webLookupService.ts:136:11)
 
-PASS src/__tests__/gmailParser.test.ts
 PASS src/__tests__/llmService.test.ts
+PASS src/__tests__/gmailParser.test.ts
 
 Test Suites: 3 passed, 3 total
 Tests:       53 passed, 53 total
 Snapshots:   0 total
-Time:        0.74 s, estimated 1 s
+Time:        1.241 s
 Ran all test suites.

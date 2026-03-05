@@ -1,12 +1,13 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface ExtractedOrder {
   itemName: string;
+  productId?: string; // String (optional: look for ASIN like B0..., or FSN, or specific product code in the email. null if not found)
   marketplace: string;
   purchaseDate: string;  // ISO date string
   deliveryDate: string | null;
@@ -69,7 +70,7 @@ RULES:
 Respond with ONLY valid JSON, no markdown fences, no explanation:
 
 For orders:
-{"type":"order","data":{"itemName":"Product Name","marketplace":"${marketplace}","purchaseDate":"YYYY-MM-DD","deliveryDate":"YYYY-MM-DD or null","orderAmount":999,"status":"Pending or Delivered","productUrls":[]}}
+{"type":"order","data":{"itemName":"Product Name","productId":"B01234567","marketplace":"${marketplace}","purchaseDate":"YYYY-MM-DD","deliveryDate":"YYYY-MM-DD or null","orderAmount":999,"status":"Pending or Delivered","productUrls":[]}}
 
 For subscriptions:
 {"type":"subscription","data":{"serviceName":"Name","cost":199,"currency":"INR","billingCycle":"Monthly","nextRenewalDate":"YYYY-MM-DD","status":"Active"}}
@@ -105,11 +106,18 @@ For irrelevant emails:
 
 // ─── Return Policy Extraction from Product Page ─────────────────────────────
 
+export interface ReturnPolicyResult {
+  returnWindowDays: number | null;
+  returnable: boolean;
+  replaceable: boolean;
+  returnPolicyDetails: string;
+}
+
 export async function extractReturnPolicyFromPage(
   pageContent: string,
   productName: string,
   marketplace: string
-): Promise<number | null> {
+): Promise<ReturnPolicyResult | null> {
   const prompt = `You are extracting the return policy from a product page on ${marketplace}.
 
 Product: ${productName}
@@ -117,24 +125,39 @@ Product: ${productName}
 PAGE CONTENT (first 8000 chars):
 ${pageContent.slice(0, 8000)}
 
-Find the return/exchange/replacement window for this specific product.
-Look for phrases like "X day return", "X day replacement", "return within X days", "returnable till", etc.
+Find the return, exchange, or replacement policy for this specific product.
 
-Respond with ONLY a single integer (the number of days). Examples:
-- "7 day replacement" → 7
-- "10 days return" → 10
-- "30 day return" → 30
-- "No return" or "Non-returnable" → 0
-- If not found → -1`;
+Respond with ONLY valid JSON containing the following fields:
+- "returnWindowDays": integer (e.g. 7, 10, 30. Use null if not found or not applicable)
+- "returnable": boolean (true if the item can be returned for a refund)
+- "replaceable": boolean (true if the item can only be replaced, or returned and replaced)
+- "returnPolicyDetails": string (A concise 1-2 sentence summary of the exact policy, e.g., "7 days Replacement only. Item cannot be returned for a refund.")
+
+Provide NO markdown fences and NO extra text, just the raw JSON object. Example:
+{"returnWindowDays":7,"returnable":false,"replaceable":true,"returnPolicyDetails":"7 days replacement only on defective items."}
+`;
 
   try {
     const result = await withRetry(() => model.generateContent(prompt));
     if (!result) return null;
 
     const text = result.response.text().trim();
-    const days = parseInt(text);
-    if (isNaN(days) || days === -1) return null;
-    return days;
+    // Try to parse the JSON
+    try {
+      // Clean up markdown block if LLM included it despite instructions
+      const cleanText = text.replace(/^```json\s*/i, '').replace(/```$/i, '').trim();
+      const parsed = JSON.parse(cleanText) as ReturnPolicyResult;
+      
+      return {
+        returnWindowDays: typeof parsed.returnWindowDays === 'number' ? parsed.returnWindowDays : null,
+        returnable: !!parsed.returnable,
+        replaceable: !!parsed.replaceable,
+        returnPolicyDetails: parsed.returnPolicyDetails || 'No details provided.',
+      };
+    } catch(e) {
+      console.error('[LLM] Failed to parse return policy JSON:', text);
+      return null;
+    }
   } catch (error) {
     console.error('[LLM] Return policy extraction failed:', error);
     return null;

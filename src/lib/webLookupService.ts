@@ -1,4 +1,5 @@
 import {
+  ReturnPolicyResult,
   extractReturnPolicyFromPage,
   extractProductUrlFromSearch,
 } from './llmService';
@@ -7,6 +8,7 @@ import {
 
 interface MarketplaceConfig {
   searchUrlBuilder: (productName: string) => string;
+  productUrlBuilder?: (productId: string) => string;
   productUrlPattern: RegExp;   // Pattern to identify product page URLs in email body
   defaultReturnDays: number;
 }
@@ -15,31 +17,36 @@ const MARKETPLACE_CONFIGS: Record<string, MarketplaceConfig> = {
   Amazon: {
     searchUrlBuilder: (name) =>
       `https://www.amazon.in/s?k=${encodeURIComponent(name)}`,
-    productUrlPattern: /https?:\/\/(?:www\.)?amazon\.in\/(?:[^\/]+\/)?(?:dp|gp\/product)\/[A-Z0-9]{10}/gi,
+    productUrlBuilder: (id) => `https://www.amazon.in/dp/${id}?th=1`,
+    productUrlPattern: /https?:\/\/(?:www\.)?amazon\.(?:in|com)\/(?:dp|gp\/product)\/[A-Z0-9]{10}/gi,
     defaultReturnDays: 10,
   },
   Flipkart: {
     searchUrlBuilder: (name) =>
       `https://www.flipkart.com/search?q=${encodeURIComponent(name)}`,
-    productUrlPattern: /https?:\/\/(?:www\.)?flipkart\.com\/[^\s"'<>]+\/p\/[^\s"'<>]+/gi,
+    productUrlBuilder: (id) => `https://www.flipkart.com/product/p/${id}`,
+    productUrlPattern: /https?:\/\/(?:www\.)?flipkart\.com\/[^\s"'<>]+\/p\/[a-zA-Z0-9]+/gi,
     defaultReturnDays: 7,
   },
   Myntra: {
     searchUrlBuilder: (name) =>
       `https://www.myntra.com/${encodeURIComponent(name.toLowerCase().replace(/\s+/g, '-'))}`,
+    productUrlBuilder: (id) => `https://www.myntra.com/product/${id}`,
     productUrlPattern: /https?:\/\/(?:www\.)?myntra\.com\/[^\s"'<>]+\/\d+(?:\/buy)?/gi,
     defaultReturnDays: 7,
   },
   Meesho: {
     searchUrlBuilder: (name) =>
       `https://meesho.com/search?q=${encodeURIComponent(name)}`,
-    productUrlPattern: /https?:\/\/(?:www\.)?meesho\.com\/[^\s"'<>]+\/p\/[^\s"'<>]+/gi,
+    productUrlBuilder: (id) => `https://meesho.com/product/${id}`,
+    productUrlPattern: /https?:\/\/(?:www\.)?meesho\.com\/[^\s"'<>]+\/p\/[a-zA-Z0-9]+/gi,
     defaultReturnDays: 7,
   },
   Ajio: {
     searchUrlBuilder: (name) =>
       `https://www.ajio.com/search/?text=${encodeURIComponent(name)}`,
-    productUrlPattern: /https?:\/\/(?:www\.)?ajio\.com\/[^\s"'<>]+\/p\/[^\s"'<>]+/gi,
+    productUrlBuilder: (id) => `https://www.ajio.com/product/${id}`,
+    productUrlPattern: /https?:\/\/(?:www\.)?ajio\.com\/[^\s"'<>]+\/p\/[a-zA-Z0-9]+/gi,
     defaultReturnDays: 7,
   },
 };
@@ -49,28 +56,64 @@ const MARKETPLACE_CONFIGS: Record<string, MarketplaceConfig> = {
 export async function lookupReturnPolicy(
   productName: string,
   marketplace: string,
-  productUrlsFromEmail: string[]
-): Promise<number> {
+  emailUrls: string[],
+  productId?: string
+): Promise<ReturnPolicyResult | null> {
   const config = MARKETPLACE_CONFIGS[marketplace];
   if (!config) {
-    console.log(`[WebLookup] Unknown marketplace "${marketplace}", using default 7 days`);
-    return 7;
+    console.log(`[WebLookup] No config for marketplace: ${marketplace}`);
+    return {
+      returnWindowDays: 7,
+      returnable: true,
+      replaceable: true,
+      returnPolicyDetails: 'Universal default return policy.',
+    }; // Universal default
   }
 
-  console.log(`[WebLookup] Looking up return policy for "${productName}" on ${marketplace}`);
+  let finalProductUrl: string | null = null;
+  let pageContent: string | null = null;
 
-  // ── Tier 1: Use product URLs extracted from email body ──────────────────
-  const relevantUrls = filterRelevantUrls(productUrlsFromEmail, marketplace, config);
+  // ─── TIER 1: Use productId or URLs from email ──────────────────────────────
   
-  for (const url of relevantUrls.slice(0, 3)) { // Try at most 3 URLs
-    console.log(`[WebLookup] Tier 1: Fetching product page: ${url}`);
-    const pageContent = await fetchWithJina(url);
-    if (pageContent) {
-      const days = await extractReturnPolicyFromPage(pageContent, productName, marketplace);
-      if (days !== null && days >= 0) {
-        console.log(`[WebLookup] ✅ Tier 1 success: ${days} days from ${url}`);
-        return days;
+  // Strategy A: If we extracted a direct Product ID (ASIN, etc.), build the exact URL
+  if (productId && config.productUrlBuilder) {
+    const builtUrl = config.productUrlBuilder(productId);
+    console.log(`[WebLookup] Tier 1: Built product URL from ID: \n${builtUrl}`);
+    const content = await fetchWithJina(builtUrl);
+    if (content) {
+      finalProductUrl = builtUrl;
+      pageContent = content;
+    }
+  }
+
+  // Strategy B: If no Product ID or it failed, look for product URLs in email body
+  if (!pageContent && emailUrls.length > 0) {
+    const relevantUrls = [...emailUrls].filter(url => 
+      url.match(config.productUrlPattern)
+    );
+    if (relevantUrls.length > 0) {
+      // Try at most 3 URLs from email
+      for (const url of relevantUrls.slice(0, 3)) {
+        console.log(`[WebLookup] Tier 1: Fetching product page from email URL: \n${url}`);
+        const content = await fetchWithJina(url);
+        if (content) {
+          finalProductUrl = url;
+          pageContent = content;
+          break; // Found content, stop trying other URLs
+        }
       }
+    }
+  }
+
+  if (pageContent && finalProductUrl) {
+    const policy = await extractReturnPolicyFromPage(pageContent, productName, marketplace);
+    if (policy) {
+      // Fallback to marketplace default if LLM found policy but not exact days
+      if (policy.returnWindowDays === null) {
+        policy.returnWindowDays = config.defaultReturnDays;
+      }
+      console.log(`[WebLookup] ✅ Tier 1 success: ${policy.returnWindowDays} days from ${finalProductUrl}`);
+      return policy;
     }
   }
 
@@ -88,10 +131,13 @@ export async function lookupReturnPolicy(
       console.log(`[WebLookup] Tier 2: Found product page: ${productUrl}`);
       const pageContent = await fetchWithJina(productUrl);
       if (pageContent) {
-        const days = await extractReturnPolicyFromPage(pageContent, productName, marketplace);
-        if (days !== null && days >= 0) {
-          console.log(`[WebLookup] ✅ Tier 2 success: ${days} days from ${productUrl}`);
-          return days;
+        const policy = await extractReturnPolicyFromPage(pageContent, productName, marketplace);
+        if (policy) {
+          if (policy.returnWindowDays === null) {
+            policy.returnWindowDays = config.defaultReturnDays;
+          }
+          console.log(`[WebLookup] ✅ Tier 2 success: ${policy.returnWindowDays} days from ${productUrl}`);
+          return policy;
         }
       }
     }
@@ -101,7 +147,12 @@ export async function lookupReturnPolicy(
 
   // ── Tier 3: Hardcoded defaults ─────────────────────────────────────────
   console.log(`[WebLookup] ✅ Tier 3 fallback: ${config.defaultReturnDays} days for ${marketplace}`);
-  return config.defaultReturnDays;
+  return {
+    returnWindowDays: config.defaultReturnDays,
+    returnable: true,
+    replaceable: true,
+    returnPolicyDetails: `Default ${config.defaultReturnDays} days return policy for ${marketplace}.`,
+  };
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
