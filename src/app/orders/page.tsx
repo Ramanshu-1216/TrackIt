@@ -7,21 +7,26 @@ import MobileNav from '@/components/MobileNav';
 
 interface Order {
   _id: string;
+  orderId?: string;
   itemName: string;
+  productId?: string;
   marketplace: string;
   purchaseDate: string;
   deliveryDate?: string;
-  returnWindowDays: number;
+  returnWindowDays: number | null;
   returnDeadline?: string;
-  status: 'Pending' | 'Delivered' | 'Returned' | 'Kept';
+  returnable?: boolean;
+  replaceable?: boolean;
+  returnPolicyDetails?: string;
+  status: 'Pending' | 'Shipped' | 'Out for delivery' | 'Delivered' | 'Returned' | 'Kept';
   notes?: string;
 }
 
 const MARKETPLACES = ['Amazon', 'Flipkart', 'Myntra', 'Meesho', 'Ajio', 'Nykaa', 'Snapdeal', 'Other'];
-const STATUSES = ['Pending', 'Delivered', 'Returned', 'Kept'];
+const STATUSES = ['Pending', 'Shipped', 'Out for delivery', 'Delivered', 'Returned', 'Kept'];
 
 const statusEmoji: Record<string, string> = {
-  Pending: '⏳', Delivered: '📬', Returned: '↩️', Kept: '✅',
+  Pending: '⏳', Shipped: '🚛', 'Out for delivery': '🛵', Delivered: '📬', Returned: '↩️', Kept: '✅',
 };
 
 const marketplaceEmoji: Record<string, string> = {
@@ -96,7 +101,7 @@ export default function OrdersPage() {
       marketplace: order.marketplace,
       purchaseDate: toInputDate(order.purchaseDate),
       deliveryDate: toInputDate(order.deliveryDate),
-      returnWindowDays: order.returnWindowDays,
+      returnWindowDays: order.returnWindowDays ?? 7,
       status: order.status,
       notes: order.notes || '',
     });
@@ -186,24 +191,30 @@ export default function OrdersPage() {
                   <div className="item-info">
                     <div className="item-name">{order.itemName}</div>
                     <div className="item-meta">
+                      {order.orderId && `<code style="font-size: 10px; background: var(--bg-secondary); padding: 2px 4px; border-radius: 4px; margin-right: 8px;">${order.orderId}</code>`}
                       {order.marketplace} · Purchased {formatDate(order.purchaseDate)}
                       {order.deliveryDate && ` · Delivered ${formatDate(order.deliveryDate)}`}
                     </div>
+                    {order.returnPolicyDetails && (
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', fontStyle: 'italic' }}>
+                        {order.returnPolicyDetails.length > 80 ? order.returnPolicyDetails.substring(0, 80) + '...' : order.returnPolicyDetails}
+                      </div>
+                    )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
                     <div style={{ textAlign: 'right' }}>
                       {order.returnDeadline ? (
                         <>
-                          <div className="item-date">Return by {formatDate(order.returnDeadline)}</div>
+                          <div className="item-date">{order.replaceable && !order.returnable ? 'Replace' : 'Return'} by {formatDate(order.returnDeadline)}</div>
                           <span className={`item-days ${getDaysClass(daysLeft!)}`}>{getDaysLabel(daysLeft!)}</span>
                         </>
                       ) : (
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                          Return window: {order.returnWindowDays}d after delivery
+                          {order.returnWindowDays === null ? 'Non-returnable' : `Return window: ${order.returnWindowDays}d`}
                         </div>
                       )}
                     </div>
-                    <span className={`badge badge-${order.status.toLowerCase()}`}>
+                    <span className={`badge badge-${order.status.toLowerCase().replace(/\s+/g, '-')}`}>
                       {statusEmoji[order.status]} {order.status}
                     </span>
                     <div style={{ display: 'flex', gap: '4px' }}>

@@ -17,7 +17,10 @@ export async function GET() {
     const subscriptions = await Subscription.find({ userId });
 
     const activeOrders = orders.filter(
-      (o) => o.status === 'Delivered' && o.returnDeadline
+      (o) => (o.status === 'Delivered' || o.status === 'Shipped' || o.status === 'Out for delivery') && o.returnDeadline
+    );
+    const transitOrders = orders.filter(
+      (o) => o.status === 'Shipped' || o.status === 'Out for delivery'
     );
     const activeSubscriptions = subscriptions.filter((s) => s.status === 'Active');
 
@@ -41,9 +44,10 @@ export async function GET() {
         return sum + cost;
       }, 0),
       urgentCount: [
-        ...activeOrders.filter((o) => getDaysLeft(o.returnDeadline!) <= 3),
+        ...activeOrders.filter((o) => o.returnDeadline && getDaysLeft(o.returnDeadline) <= 3),
         ...activeSubscriptions.filter((s) => getDaysLeft(s.nextRenewalDate) <= 3),
       ].length,
+      transitCount: transitOrders.length,
     };
 
     const upcomingReturns = activeOrders

@@ -10,10 +10,10 @@ interface Order {
   _id: string;
   itemName: string;
   marketplace: string;
-  status: string;
+  status: 'Pending' | 'Shipped' | 'Out for delivery' | 'Delivered' | 'Returned' | 'Kept';
   deliveryDate?: string;
   returnDeadline?: string;
-  returnWindowDays: number;
+  returnWindowDays: number | null;
 }
 
 interface Subscription {
@@ -32,6 +32,7 @@ interface Stats {
   subscriptionsCount: number;
   monthlySpend: number;
   urgentCount: number;
+  transitCount: number;
 }
 
 function getDaysLeft(dateStr: string | undefined): number {
@@ -88,7 +89,8 @@ export default function DashboardPage() {
     activeReturns: 0,
     subscriptionsCount: 0,
     monthlySpend: 0,
-    urgentCount: 0
+    urgentCount: 0,
+    transitCount: 0
   });
   const [upcomingReturns, setUpcomingReturns] = useState<Order[]>([]);
   const [upcomingSubscriptions, setUpcomingSubscriptions] = useState<Subscription[]>([]);
@@ -181,7 +183,14 @@ export default function DashboardPage() {
             <div className="stat-icon yellow">⏳</div>
             <div>
               <div className="stat-value">{stats.activeReturns}</div>
-              <div className="stat-label">Active Returns</div>
+              <div className="stat-label">Active Windows</div>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon blue">🚚</div>
+            <div>
+              <div className="stat-value">{stats.transitCount}</div>
+              <div className="stat-label">In Transit</div>
             </div>
           </div>
           <div className="stat-card">
