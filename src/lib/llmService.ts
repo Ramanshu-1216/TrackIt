@@ -118,24 +118,26 @@ export async function extractReturnPolicyFromPage(
   productName: string,
   marketplace: string
 ): Promise<ReturnPolicyResult | null> {
-  const prompt = `You are extracting the return policy from a product page on ${marketplace}.
+  const prompt = `You are a product return policy expert. I will provide you with the content of a product page (usually a few high-signal HTML fragments or markdown) for a product named "${productName}" on ${marketplace}.
+  
+EXTRACTED PAGE CONTENT:
+${pageContent.slice(0, 30000)}
 
-Product: ${productName}
+Your goal is to extract the return/replacement policy details.
+Specifically for Amazon, look for:
+- "10 days Replacement"
+- "Non-Returnable"
+- "Returnable"
+- Reasons like "Damaged, Defective, Wrong or Missing"
+- Instructions on keeping original packaging.
 
-PAGE CONTENT (first 8000 chars):
-${pageContent.slice(0, 8000)}
-
-Find the return, exchange, or replacement policy for this specific product.
-
-Respond with ONLY valid JSON containing the following fields:
-- "returnWindowDays": integer (e.g. 7, 10, 30. Use null if not found or not applicable)
-- "returnable": boolean (true if the item can be returned for a refund)
-- "replaceable": boolean (true if the item can only be replaced, or returned and replaced)
-- "returnPolicyDetails": string (A concise 1-2 sentence summary of the exact policy, e.g., "7 days Replacement only. Item cannot be returned for a refund.")
-
-Provide NO markdown fences and NO extra text, just the raw JSON object. Example:
-{"returnWindowDays":7,"returnable":false,"replaceable":true,"returnPolicyDetails":"7 days replacement only on defective items."}
-`;
+Respond with ONLY a JSON object in this format:
+{
+  "returnWindowDays": number | null (e.g., 7 or 10, null if not found),
+  "returnable": boolean,
+  "replaceable": boolean,
+  "returnPolicyDetails": "A concise summary of the policy (e.g., '10 days Replacement only for damaged/defective items. Non-refundable.')"
+}`;
 
   try {
     const result = await withRetry(() => model.generateContent(prompt));
@@ -173,8 +175,8 @@ export async function extractProductUrlFromSearch(
 ): Promise<string | null> {
   const prompt = `You are looking at search results from ${marketplace} for the product: "${productName}".
 
-PAGE CONTENT (first 6000 chars):
-${searchContent.slice(0, 6000)}
+PAGE CONTENT (first 20000 chars):
+${searchContent.slice(0, 20000)}
 
 Find the URL of the FIRST product listing that matches or is closest to "${productName}".
 The URL should be a full product page URL (not a search/category URL).

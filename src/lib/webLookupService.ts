@@ -3,6 +3,7 @@ import {
   extractReturnPolicyFromPage,
   extractProductUrlFromSearch,
 } from './llmService';
+import * as cheerio from 'cheerio';
 
 // ─── Marketplace Configuration ───────────────────────────────────────────────
 
@@ -79,7 +80,7 @@ export async function lookupReturnPolicy(
   if (productId && config.productUrlBuilder) {
     const builtUrl = config.productUrlBuilder(productId);
     console.log(`[WebLookup] Tier 1: Built product URL from ID: \n${builtUrl}`);
-    const content = await fetchWithJina(builtUrl);
+    const content = await fetchWithJina(builtUrl, true); // Request HTML
     if (content) {
       finalProductUrl = builtUrl;
       pageContent = content;
@@ -95,7 +96,7 @@ export async function lookupReturnPolicy(
       // Try at most 3 URLs from email
       for (const url of relevantUrls.slice(0, 3)) {
         console.log(`[WebLookup] Tier 1: Fetching product page from email URL: \n${url}`);
-        const content = await fetchWithJina(url);
+        const content = await fetchWithJina(url, true); // Request HTML
         if (content) {
           finalProductUrl = url;
           pageContent = content;
@@ -106,7 +107,10 @@ export async function lookupReturnPolicy(
   }
 
   if (pageContent && finalProductUrl) {
-    const policy = await extractReturnPolicyFromPage(pageContent, productName, marketplace);
+    // Process content (extract relevant bits if HTML)
+    const processedContent = extractRelevantHtml(pageContent, marketplace);
+    
+    const policy = await extractReturnPolicyFromPage(processedContent, productName, marketplace);
     if (policy) {
       // Fallback to marketplace default if LLM found policy but not exact days
       if (policy.returnWindowDays === null) {
@@ -129,9 +133,10 @@ export async function lookupReturnPolicy(
     const productUrl = await extractProductUrlFromSearch(searchContent, productName, marketplace);
     if (productUrl) {
       console.log(`[WebLookup] Tier 2: Found product page: ${productUrl}`);
-      const pageContent = await fetchWithJina(productUrl);
+      const pageContent = await fetchWithJina(productUrl, true); // Request HTML
       if (pageContent) {
-        const policy = await extractReturnPolicyFromPage(pageContent, productName, marketplace);
+        const processedContent = extractRelevantHtml(pageContent, marketplace);
+        const policy = await extractReturnPolicyFromPage(processedContent, productName, marketplace);
         if (policy) {
           if (policy.returnWindowDays === null) {
             policy.returnWindowDays = config.defaultReturnDays;
@@ -187,14 +192,64 @@ function filterRelevantUrls(
 }
 
 /**
+ * Extract high-signal HTML fragments for the LLM
+ */
+function extractRelevantHtml(content: string, marketplace: string): string {
+  if (marketplace !== 'Amazon') return content; // No specific logic for others yet
+
+  try {
+    const $ = cheerio.load(content);
+    const fragments: string[] = [];
+
+    // Amazon specific selectors for return policy
+    const returnPolicyDiv = $('#RETURNS_POLICY').html();
+    if (returnPolicyDiv) {
+      fragments.push(`Return Policy Summary HTML:\n${returnPolicyDiv}`);
+    }
+
+    const secondaryViewHolder = $('#icon-farm-secondary-view-holder').html();
+    if (secondaryViewHolder) {
+      fragments.push(`Return Policy Detailed View HTML:\n${secondaryViewHolder}`);
+    }
+
+    // Fallback selectors if IDs change or for different page types
+    if (fragments.length === 0) {
+      // Look for any div containing "Return Policy" or "Replacement"
+      $('div').each((_, el) => {
+        const text = $(el).text();
+        if (text.includes('Return Policy') || text.includes('Replacement Policy')) {
+          const html = $(el).html();
+          if (html && html.length < 5000) { // Don't grab whole page wrappers
+            fragments.push(`Potential Policy Fragment:\n${html}`);
+          }
+        }
+      });
+    }
+
+    if (fragments.length > 0) {
+      console.log(`[WebLookup] Extracted ${fragments.length} relevant HTML fragments for LLM.`);
+      return fragments.join('\n\n---\n\n');
+    }
+  } catch (error) {
+    console.warn(`[WebLookup] Error extracting HTML fragments:`, error);
+  }
+
+  return content; // Fallback to full content
+}
+
+/**
  * Fetch a URL using Jina Reader to get clean markdown content
  */
-async function fetchWithJina(url: string): Promise<string | null> {
+async function fetchWithJina(url: string, respondWithHtml = false): Promise<string | null> {
   try {
     const jinaUrl = `https://r.jina.ai/${url}`;
     const headers: Record<string, string> = {
       'Accept': 'text/plain',
     };
+
+    if (respondWithHtml) {
+      headers['x-respond-with'] = 'html';
+    }
 
     if (process.env.JINA_API_KEY) {
       headers['Authorization'] = `Bearer ${process.env.JINA_API_KEY}`;
