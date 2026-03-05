@@ -191,11 +191,23 @@ export default function OrdersPage() {
                   <div className="item-info">
                     <div className="item-name">{order.itemName}</div>
                     <div className="item-meta">
-                      {order.orderId && `<code style="font-size: 10px; background: var(--bg-secondary); padding: 2px 4px; border-radius: 4px; margin-right: 8px;">${order.orderId}</code>`}
+                      {order.orderId && (
+                        <code style={{ 
+                          fontSize: '10px', 
+                          background: 'var(--bg-secondary)', 
+                          padding: '2px 4px', 
+                          borderRadius: '4px', 
+                          marginRight: '8px',
+                          fontFamily: 'monospace',
+                          border: '1px solid var(--border)'
+                        }}>
+                          {order.orderId}
+                        </code>
+                      )}
                       {order.marketplace} · Purchased {formatDate(order.purchaseDate)}
                       {order.deliveryDate && ` · Delivered ${formatDate(order.deliveryDate)}`}
                     </div>
-                    {order.returnPolicyDetails && (
+                    {order.returnPolicyDetails && !order.returnPolicyDetails.toLowerCase().includes('not found') && (
                       <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', fontStyle: 'italic' }}>
                         {order.returnPolicyDetails.length > 80 ? order.returnPolicyDetails.substring(0, 80) + '...' : order.returnPolicyDetails}
                       </div>
