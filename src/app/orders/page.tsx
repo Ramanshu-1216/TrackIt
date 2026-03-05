@@ -205,48 +205,28 @@ export default function OrdersPage() {
             {filtered.map(order => {
               const daysLeft = order.returnDeadline ? getDaysLeft(order.returnDeadline) : null;
               return (
-                <div className="item-card" key={order._id} style={{ 
-                  cursor: 'default', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: '16px',
-                  alignItems: 'stretch',
-                  padding: '20px'
-                }}>
+                <div className="order-card" key={order._id}>
                   {/* Top Row: Logo, Title, and Actions */}
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-                    <div className="item-logo" style={{ marginTop: '2px' }}>
+                  <div className="order-card-header">
+                    <div className="item-logo">
                       {marketplaceEmoji[order.marketplace] || '🏪'}
                     </div>
                     
-                    <div className="item-info" style={{ flex: 1 }}>
-                      <div className="item-name" style={{ fontSize: '15px', fontWeight: 700, marginBottom: '6px' }}>
+                    <div className="order-card-info">
+                      <div className="order-card-title">
                         {order.itemName}
                       </div>
                       
                       {/* Metadata Row */}
-                      <div className="item-meta" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ 
-                          fontSize: '11px', 
-                          fontWeight: 600, 
-                          color: 'var(--text-primary)',
-                          background: 'var(--bg-secondary)',
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          border: '1px solid var(--border)'
-                        }}>
+                      <div className="order-card-meta">
+                        <span className="order-card-tag">
                           {order.marketplace}
                         </span>
                         
                         {order.orderId && (
                           <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>ID:</span>
-                            <code style={{ 
-                              fontSize: '11px', 
-                              background: 'transparent', 
-                              color: 'var(--text-secondary)',
-                              fontFamily: 'monospace'
-                            }}>
+                            <span className="order-card-id-label">ID:</span>
+                            <code className="order-card-id-value">
                               {order.orderId}
                             </code>
                           </span>
@@ -254,13 +234,8 @@ export default function OrdersPage() {
 
                         {order.productId && (
                           <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>ASIN:</span>
-                            <code style={{ 
-                              fontSize: '11px', 
-                              background: 'transparent', 
-                              color: 'var(--text-secondary)',
-                              fontFamily: 'monospace'
-                            }}>
+                            <span className="order-card-id-label">ASIN:</span>
+                            <code className="order-card-id-value">
                               {order.productId}
                             </code>
                           </span>
@@ -274,7 +249,7 @@ export default function OrdersPage() {
                     </div>
 
                     {/* Right Side: Status and Main Actions */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
+                    <div className="order-card-actions">
                       <span className={`badge badge-${order.status.toLowerCase().replace(/\s+/g, '-')}`} style={{ padding: '4px 12px' }}>
                         {statusEmoji[order.status]} {order.status}
                       </span>
@@ -302,67 +277,31 @@ export default function OrdersPage() {
                   </div>
 
                   {/* Bottom Row: Policy Info & Deadline */}
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'flex-end', 
-                    justifyContent: 'space-between',
-                    paddingTop: '12px',
-                    borderTop: '1px solid var(--border)',
-                    marginTop: '4px'
-                  }}>
-                    <div style={{ flex: 1, marginRight: '24px' }}>
-                      <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                  <div className="order-card-footer">
+                    <div className="order-card-policy">
+                      <div className="policy-badges">
                         {order.returnable && (
-                          <span style={{ 
-                            fontSize: '10px', 
-                            background: 'rgba(56, 189, 248, 0.1)', 
-                            color: '#38bdf8', 
-                            padding: '2px 8px', 
-                            borderRadius: '4px', 
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px',
-                            border: '1px solid rgba(56, 189, 248, 0.2)'
-                          }}>Returnable</span>
+                          <span className="policy-badge policy-badge-return">Returnable</span>
                         )}
                         {order.replaceable && (
-                          <span style={{ 
-                            fontSize: '10px', 
-                            background: 'rgba(34, 197, 94, 0.1)', 
-                            color: '#22c55e', 
-                            padding: '2px 8px', 
-                            borderRadius: '4px', 
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px',
-                            border: '1px solid rgba(34, 197, 94, 0.2)'
-                          }}>Replaceable</span>
+                          <span className="policy-badge policy-badge-replace">Replaceable</span>
                         )}
                       </div>
                       
                       {order.returnPolicyDetails && !order.returnPolicyDetails.toLowerCase().includes('not found') && (
-                        <div style={{ 
-                          fontSize: '12px', 
-                          color: 'var(--text-secondary)', 
-                          lineHeight: '1.5',
-                          maxWidth: '650px',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden'
-                        }}>
+                        <div className="policy-details">
                           {order.returnPolicyDetails}
                         </div>
                       )}
                     </div>
 
-                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <div className="order-card-deadline">
                       {order.returnDeadline && order.status !== 'Kept' ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                          <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'inherit', gap: '4px' }}>
+                          <div className="deadline-label">
                             Deadline
                           </div>
-                          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                          <div className="deadline-value">
                             {formatDate(order.returnDeadline)}
                           </div>
                           <span className={`item-days ${getDaysClass(daysLeft!)}`} style={{ margin: 0 }}>
