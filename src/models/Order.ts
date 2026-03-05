@@ -52,7 +52,7 @@ OrderSchema.index({ userId: 1, marketplace: 1, orderId: 1, productId: 1 }, { uni
 
 // Auto-compute returnDeadline before saving
 OrderSchema.pre('save', async function (this: IOrder) {
-  if (this.deliveryDate && this.returnWindowDays) {
+  if (this.deliveryDate && this.returnWindowDays !== null) {
     const deadline = new Date(this.deliveryDate);
     deadline.setDate(deadline.getDate() + this.returnWindowDays);
     this.returnDeadline = deadline;

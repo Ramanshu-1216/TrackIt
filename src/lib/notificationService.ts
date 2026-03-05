@@ -4,27 +4,49 @@ import Order from '@/models/Order';
 import Subscription from '@/models/Subscription';
 import dbConnect from './dbConnect';
 
-// Configure VAPID keys
-webpush.setVapidDetails(
-  'mailto:your-email@example.com',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
+let isVapidSet = false;
+
+function ensureVapidConfig() {
+  if (isVapidSet) return;
+  
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const privateKey = process.env.VAPID_PRIVATE_KEY;
+  const contactEmail = process.env.VAPID_EMAIL || 'mailto:admin@example.com';
+
+  if (!publicKey || !privateKey) {
+    console.warn('[PushNotification] Missing VAPID keys in environment variables.');
+    return;
+  }
+
+  try {
+    webpush.setVapidDetails(
+      contactEmail.startsWith('mailto:') ? contactEmail : `mailto:${contactEmail}`,
+      publicKey,
+      privateKey
+    );
+    isVapidSet = true;
+    console.log('[PushNotification] VAPID details configured successfully.');
+  } catch (err) {
+    console.error('[PushNotification] Failed to set VAPID details:', err);
+  }
+}
+
 
 export async function sendPushNotification(
   userId: string, 
   payload: { title: string; body: string; url?: string }
 ) {
+  ensureVapidConfig();
   await dbConnect();
   const user = await User.findById(userId);
-  if (!user || !user.pushSubscription) {
-    console.log(`No user or push subscription found for userId: ${userId}`);
+  if (!user || !user.pushSubscription || !(user.pushSubscription as any).endpoint) {
+    console.log(`No valid push subscription found for userId: ${userId}`);
     return;
   }
 
   try {
     await webpush.sendNotification(
-      user.pushSubscription as any,
+      JSON.parse(JSON.stringify(user.pushSubscription)),
       JSON.stringify(payload)
     );
     console.log(`Push notification sent successfully to user: ${userId}`);
